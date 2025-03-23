@@ -1,9 +1,14 @@
 package geometries;
+import primitives.Point;
+import primitives.Vector;
 
-/**
- * Cylinder class represents a cylinder in 3D space.
- * It is defined by a radius, height, and a base point.
- */
 public class Cylinder {
-    // Class implementation goes here
+    Double height;
+    public Cylinder (Double height) {
+        this.height = height;
+    }
+    public Vector getNormal(Point point) {
+        return null;
+    }
 }
+
