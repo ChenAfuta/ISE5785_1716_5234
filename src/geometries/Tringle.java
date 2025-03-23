@@ -1,4 +1,4 @@
 package geometries;
 
-public class Tringle {
+public class Tringle extends Polygon{
 }
