@@ -5,7 +5,8 @@ import static java.lang.System.out;
 import static primitives.Util.isZero;
 
 import primitives.*;
-
+//Chen Afuta 328241716 chenafuta@gmail.com
+//Hallel Ochana 327605234 hallelochana@gmail.com
 /**
  * Test program for the 1st stage
  * @author Dan Zilberstein
