@@ -38,4 +38,9 @@ public class Cylinder extends RadialGeometry {
         // Implementation of the normal calculation
         return null;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

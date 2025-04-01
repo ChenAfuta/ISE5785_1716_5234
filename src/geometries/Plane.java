@@ -30,7 +30,7 @@ public class Plane {
      */
     public Plane(Point point, Point otherPoint, Point anotherPoint) {
         this.point = point;
-        this.normal =  null;
+        this.normal = otherPoint.subtract(point).crossProduct(anotherPoint.subtract(point)).normalize();
     }
 
     /**
