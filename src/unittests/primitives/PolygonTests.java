@@ -1,24 +1,24 @@
-package unittests.geometries;
+package unittests.primitives;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import geometries.Polygon;
 import primitives.*;
 
 /**
- * Testing Polygons
+ * Testing Polygons.
  * @author Dan
  */
-class PolygonTests {
+class PolygonTests{
+
     /**
      * Delta value for accuracy when comparing the numbers of type 'double' in
      * assertEquals
      */
     private static final double DELTA = 0.000001;
 
-    /** Test method for {@link geometries.Polygon#Polygon(primitives.Point...)}. */
+    /** Test method for {@link Polygon#Polygon(primitives.Point...)}. */
     @Test
     void testConstructor() {
         // ============ Equivalence Partitions Tests ==============     2
@@ -52,21 +52,20 @@ class PolygonTests {
         assertThrows(IllegalArgumentException.class, //
                 () -> new Polygon(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0),
                         new Point(0, 0.5, 0.5)),
-                "Constructed a polygon with vertix on a side");
+                "Constructed a polygon with vertex on a side");
 
         // TC11: Last point = first point
         assertThrows(IllegalArgumentException.class, //
                 () -> new Polygon(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0), new Point(0, 0, 1)),
-                "Constructed a polygon with vertice on a side");
+                "Constructed a polygon with vertex on a side");
 
         // TC12: Co-located points
         assertThrows(IllegalArgumentException.class, //
                 () -> new Polygon(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0), new Point(0, 1, 0)),
-                "Constructed a polygon with vertice on a side");
-
+                "Constructed a polygon with co-located points");
     }
 
-    /** Test method for {@link geometries.Polygon#getNormal(primitives.Point)}. */
+    /** Test method for {@link Polygon#getNormal(primitives.Point)}. */
     @Test
     void testGetNormal() {
         // ============ Equivalence Partitions Tests ==============

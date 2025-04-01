@@ -9,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the Ray class.
  */
-class RayTests {
+class
+
+RayTests {
 
     /**
      * Test for the Ray constructor.

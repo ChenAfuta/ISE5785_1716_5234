@@ -1,7 +1,7 @@
 package geometries;
 
-import org.junit.jupiter.api.Test;
+import primitives.Polygon;
 
-public class Tringle extends Polygon{
+public class Tringle extends Polygon {
 
 }
