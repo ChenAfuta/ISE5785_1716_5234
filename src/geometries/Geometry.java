@@ -4,13 +4,12 @@ import primitives.Point;
 import primitives.Vector;
 
 /**
- * Geometry class represents a geometric object in 3D space.
- * It is an abstract class that serves as a base for other geometric shapes.
+ * The Geometry class is an abstract base class for all geometric objects in a 3D space.
+ * It defines a method to calculate the normal vector at a given point on the geometry.
  */
 public abstract class Geometry {
     /**
-     * Returns the normal vector to the geometry at a given point.
-     *
+     * Calculates the normal vector to the geometry at a given point.
      * @param point the point on the geometry
      * @return the normal vector to the geometry at the given point
      */
