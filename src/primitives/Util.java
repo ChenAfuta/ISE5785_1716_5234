@@ -28,14 +28,23 @@ public final class Util {
      * @param  number the number to check
      * @return        true if the number is zero or almost zero, false otherwise */
     public static boolean isZero(double number) {
-        return getExp(number) < ACCURACY;
+        final double EPSILON = 1e-9;  // סף קטן
+        return Math.abs(number) < EPSILON;
     }
+
 
     /** Aligns the number to zero if it is almost zero
      * @param  number the number to align
      * @return        0.0 if the number is very close to zero, the number itself
      *                otherwise */
-    public static double alignZero(double number) { return isZero(number) ? 0.0 : number; }
+    public static double alignZero(double number) {
+        final double EPSILON = 1e-9;  // סף קטן
+        if (Math.abs(number) < EPSILON) {
+            return 0.0;
+        }
+        return number;
+    }
+
 
     /** Check whether two numbers have the same sign
      * @param  n1 1st number

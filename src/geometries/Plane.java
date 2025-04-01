@@ -3,42 +3,39 @@ package geometries;
 import primitives.Point;
 import primitives.Vector;
 
-/**
- * The Plane class represents a plane in a 3D space.
- * A plane is defined by a point on the plane and a normal vector.
- */
 public class Plane {
-    Point point;
-    Vector normal;
+    private final Point point;
+    private final Vector normal;
 
-    /**
-     * Constructs a Plane with the specified point and normal vector.
-     * @param point the point on the plane
-     * @param normal the normal vector to the plane
-     */
     public Plane(Point point, Vector normal) {
         this.point = point;
         this.normal = normal.normalize();
     }
 
-    /**
-     * Constructs a Plane with three points on the plane.
-     * The normal vector is calculated as the cross product of the vectors defined by these points.
-     * @param point the first point on the plane
-     * @param otherPoint the second point on the plane
-     * @param anotherPoint the third point on the plane
-     */
-    public Plane(Point point, Point otherPoint, Point anotherPoint) {
-        this.point = point;
-        this.normal = otherPoint.subtract(point).crossProduct(anotherPoint.subtract(point)).normalize();
+    public Plane(Point p1, Point p2, Point p3) {
+        if (p1.equals(p2) || p1.equals(p3) || p2.equals(p3)) {
+            throw new IllegalArgumentException("Two or more points are identical");
+        }
+
+        Vector v1 = p2.subtract(p1);
+        Vector v2 = p3.subtract(p1);
+
+        // בדיקה אם הווקטורים תלויים ליניארית (כלומר, אחד הוא כפל סקלרי של השני)
+        if (v1.normalize().equals(v2.normalize()) || v1.normalize().equals(v2.normalize().scale(-1))) {
+            throw new IllegalArgumentException("The points are collinear");
+        }
+
+        this.point = p1;
+        this.normal = v1.crossProduct(v2).normalize();
     }
 
-    /**
-     * Returns the normal vector to the plane at a given point.
-     * @param point the point on the plane
-     * @return the normal vector to the plane at the given point
-     */
+
+
     public Vector getNormal(Point point) {
+        return this.normal;
+    }
+
+    public Vector getNormal() {
         return this.normal;
     }
 }

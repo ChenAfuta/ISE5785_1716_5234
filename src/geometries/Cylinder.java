@@ -2,45 +2,50 @@ package geometries;
 
 import primitives.Point;
 import primitives.Vector;
+import primitives.Ray;
 
-/**
- * The Cylinder class represents a cylinder in a 3D space.
- * A cylinder is defined by its height and radius.
- */
-public class Cylinder extends RadialGeometry {
-    private double height;
+public class Cylinder extends Tube {
+    Double height;
 
-    /**
-     * Constructs a Cylinder with the specified radius and height.
-     * @param radius the radius of the cylinder
-     * @param height the height of the cylinder
-     */
-    public Cylinder(double radius, double height) {
-        super(radius);
+    public Cylinder(Ray ray, double radius, double height) {
+        super(radius, ray);
         this.height = height;
     }
 
-    /**
-     * Returns the height of the cylinder.
-     * @return the height of the cylinder
-     */
-    public double getHeight() {
+    public Double getHeight() {
         return height;
     }
 
-    /**
-     * Calculates the normal vector to the cylinder at a given point.
-     * @param point the point on the surface of the cylinder
-     * @return the normal vector to the cylinder at the given point
-     */
     @Override
     public Vector getNormal(Point point) {
-        // Implementation of the normal calculation
-        return null;
+        Vector dir = getRay().getDir();
+        Point p0 = getRay().getP0();
+
+        // בדיקה אם הנקודה נמצאת על הבסיס התחתון
+        if (point.subtract(p0).dotProduct(dir) == 0) {
+            return dir.scale(-1); // הנורמל לכיוון השלילי של הציר
+        }
+
+        // בדיקה אם הנקודה נמצאת על הבסיס העליון
+        Point topBase = p0.add(dir.scale(height));
+        if (point.subtract(topBase).dotProduct(dir) == 0) {
+            return dir; // הנורמל לכיוון החיובי של הציר
+        }
+
+        // חישוב נורמל למעטפת
+        double projection = point.subtract(p0).dotProduct(dir);
+        Point o = p0.add(dir.scale(projection)); // הנקודה הקרובה ביותר על הציר
+
+        Vector normal = point.subtract(o);
+        if (normal.length() == 0) { // בדיקה אם קיבלנו וקטור אפס
+            throw new IllegalArgumentException("Point is on the cylinder axis, normal is undefined.");
+        }
+
+        return normal.normalize();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
+    private Ray getRay() {
+        return axis;
     }
 }
+

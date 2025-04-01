@@ -15,6 +15,9 @@ public final class Ray {
      * @param dir the direction vector of the ray
      */
     public Ray(Point p0, Vector dir) {
+        if (dir.equals(Vector.ZERO)) {
+            throw new IllegalArgumentException("Direction vector cannot be zero");
+        }
         this.p0 = p0;
         this.dir = dir.normalize();
     }
@@ -29,5 +32,12 @@ public final class Ray {
         if (this == obj) return true;
         if (!(obj instanceof Ray ray)) return false;
         return p0.equals(ray.p0) && dir.equals(ray.dir);
+    }
+
+    public Point getP0(){
+         return p0;
+    }
+    public Vector getDir(){
+        return dir;
     }
 }

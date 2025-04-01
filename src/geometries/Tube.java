@@ -8,7 +8,7 @@ import primitives.Vector;
  * The Tube class represents a tube in a 3D space.
  * A tube is defined by a central axis (ray) and a radius.
  */
-public class Tube extends RadialGeometry{
+public class Tube extends RadialGeometry {
     protected final Ray axis;
 
     /**
@@ -16,7 +16,7 @@ public class Tube extends RadialGeometry{
      * @param ray the central axis of the tube
      * @param radius the radius of the tube
      */
-    public Tube( Double radius, Ray ray) {
+    public Tube(Double radius, Ray ray) {
         super(radius);
         this.axis = ray;
     }
@@ -27,7 +27,17 @@ public class Tube extends RadialGeometry{
      * @return the normal vector to the tube at the given point
      */
     public Vector getNormal(Point point) {
-        double t=point.subtract(axis.).dotProduct(axis.getDirection());
-        return point.subtract(axis.getpoint(t)).normalize();
+        // Vector from the axis origin to the point on the surface
+        Vector v = point.subtract(axis.getP0());
+
+        // Project this vector onto the plane perpendicular to the tube axis (i.e., remove the component along the axis)
+        double projectionLength = v.dotProduct(axis.getDir());
+        Vector projection = axis.getDir().scale(projectionLength);
+
+        // The normal is the difference between the point vector and the projection
+        Vector normal = v.subtract(projection).normalize();
+
+        return normal;
     }
+
 }
