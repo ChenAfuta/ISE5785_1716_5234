@@ -11,15 +11,41 @@ public final class Ray {
     /**
      * Constructs a Ray with the specified starting point and direction vector.
      * The direction vector is normalized.
-     * @param point the starting point of the ray
-     * @param direction the direction vector of the ray
+     * @param p0 the starting point of the ray
+     * @param dir the direction vector of the ray
      */
-    public Ray(Point point, Vector direction) {
-        if (direction.equals(Vector.ZERO)) {
+    public Ray(Point p0, Vector dir) {
+        if (dir.equals(Vector.ZERO)) {
             throw new IllegalArgumentException("Direction vector cannot be zero");
         }
-        this.point = point;
-        this.direction = direction.normalize();
+        this.point = p0;
+        this.direction = dir.normalize();
+    }
+
+    /**
+     * Returns the starting point of the ray.
+     * @return the ray's origin point
+     */
+    public Point getPoint() {
+        return point;
+    }
+
+    /**
+     * Returns the direction vector of the ray.
+     * @return normalized direction vector
+     */
+    public Vector getDirection() {
+        return direction;
+    }
+
+    /**
+     * Calculates a point on the ray at a given distance t from the origin.
+     * If t = 0, returns the origin point.
+     * @param t distance from the ray origin
+     * @return a Point located t units along the ray's direction
+     */
+    public Point getPoint(double t) {
+        return point.add(direction.scale(t));
     }
 
     @Override
@@ -32,14 +58,5 @@ public final class Ray {
         if (this == obj) return true;
         if (!(obj instanceof Ray ray)) return false;
         return point.equals(ray.point) && direction.equals(ray.direction);
-    }
-    public Point getPoint() {
-        return point;
-    }
-    public Point getPoint(double t) {
-        return point.add(direction.scale(t));
-    }
-    public Vector getDirection(){
-        return direction;
     }
 }

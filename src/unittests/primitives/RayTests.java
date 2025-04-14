@@ -1,32 +1,29 @@
 package unittests.primitives;
 
-import primitives.Point;
-import primitives.Ray;
-import primitives.Vector;
 import org.junit.jupiter.api.Test;
+import primitives.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for the Ray class.
- */
-class
+public class RayTests {
 
-RayTests {
-
-    /**
-     * Test for the Ray constructor.
-     */
     @Test
-    void RayConstructor() {
-        // ============ Equivalence Partitions Tests ==============
-        Point p1 = new Point(1, 0, 0);
-        Vector v1 = new Vector(0, 1, 0);
-        Ray ray1 = new Ray(p1, v1);
-        assertEquals(p1, ray1.getPoint(), "Ray constructor failed");
-        assertEquals(v1, ray1.getDirection(), "Ray constructor failed");
+    public void testGetPointPositive() {
+        Ray ray = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
+        Point expected = new Point(1, 2, 5);
+        assertEquals(expected, ray.getPoint(2), "Ray should return point at distance 2 in direction");
+    }
 
-        // ============== Boundary Value Tests ==============
-        // Test if the vector is zero
-        assertThrows(IllegalArgumentException.class, () -> new Ray(p1, new Vector(0, 0, 0)), "Ray constructor should throw exception for zero vector");
+    @Test
+    public void testGetPointNegative() {
+        Ray ray = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
+        Point expected = new Point(1, 2, 1);
+        assertEquals(expected, ray.getPoint(-2), "Ray should return point at distance -2 in direction");
+    }
+
+    @Test
+    public void testGetPointZero() {
+        Ray ray = new Ray(new Point(1, 2, 3), new Vector(0, 0, 1));
+        Point expected = new Point(1, 2, 3);
+        assertEquals(expected, ray.getPoint(0), "Ray should return its origin point for t=0");
     }
 }

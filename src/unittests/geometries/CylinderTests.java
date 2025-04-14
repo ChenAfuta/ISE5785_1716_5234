@@ -5,6 +5,9 @@ import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -43,4 +46,19 @@ class CylinderTests {
         Vector expectedNormal3 = new Vector(0, 0, 1);
         assertEquals(expectedNormal3, cylinder.getNormal(p3), "The normal vector on the top base is incorrect");
     }
+    @Test
+    public void testFindIntersectionsCylinder() {
+        Cylinder cylinder = new Cylinder(new Ray(Point.ZERO, new Vector(0, 0, 1)), 1.0, 3.0);
+
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: Ray intersects the cylinder (2 points)
+        Ray ray1 = new Ray(new Point(2, 0, 1), new Vector(-1, 0, 0));
+        List<Point> result = cylinder.findIntersections(ray1);
+        assertNotNull(result, "Expected 2 intersection points");
+        assertEquals(2, result.size(), "Wrong number of points");
+
+        // TC02: Ray is outside and parallel to axis (0 points)
+        Ray ray2 = new Ray(new Point(2, 0, 0), new Vector(0, 0, 1));
+        assertNull(cylinder.findIntersections(ray2), "Parallel and outside - must return null");
+}
 }

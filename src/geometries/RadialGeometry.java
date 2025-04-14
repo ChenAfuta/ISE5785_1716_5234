@@ -12,6 +12,6 @@ public abstract class RadialGeometry extends Geometry {
      * @param radius the radius of the radial geometry
      */
     public RadialGeometry(double radius) {
-        this.Radius = radius;
+        this.radius = radius;
     }
 }

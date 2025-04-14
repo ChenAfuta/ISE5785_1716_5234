@@ -4,8 +4,6 @@ import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
 
-import java.util.List;
-
 public class Cylinder extends Tube {
     Double height;
 
@@ -49,8 +47,6 @@ public class Cylinder extends Tube {
     private Ray getRay() {
         return axis;
     }
-    public List<Point> findInstrsections(Ray ray) {
-        return null;
-    }
+
 }
 
