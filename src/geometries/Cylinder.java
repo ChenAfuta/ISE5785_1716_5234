@@ -4,6 +4,8 @@ import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
 
+import java.util.List;
+
 public class Cylinder extends Tube {
     Double height;
 
@@ -18,8 +20,8 @@ public class Cylinder extends Tube {
 
     @Override
     public Vector getNormal(Point point) {
-        Vector dir = getRay().getDir();
-        Point p0 = getRay().getP0();
+        Vector dir = getRay().getDirection();
+        Point p0 = getRay().getPoint();
 
         // בדיקה אם הנקודה נמצאת על הבסיס התחתון
         if (point.subtract(p0).dotProduct(dir) == 0) {
@@ -46,6 +48,9 @@ public class Cylinder extends Tube {
 
     private Ray getRay() {
         return axis;
+    }
+    public List<Point> findInstrsections(Ray ray) {
+        return null;
     }
 }
 

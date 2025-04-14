@@ -22,8 +22,8 @@ RayTests {
         Point p1 = new Point(1, 0, 0);
         Vector v1 = new Vector(0, 1, 0);
         Ray ray1 = new Ray(p1, v1);
-        assertEquals(p1, ray1.getP0(), "Ray constructor failed");
-        assertEquals(v1, ray1.getDir(), "Ray constructor failed");
+        assertEquals(p1, ray1.getPoint(), "Ray constructor failed");
+        assertEquals(v1, ray1.getDirection(), "Ray constructor failed");
 
         // ============== Boundary Value Tests ==============
         // Test if the vector is zero

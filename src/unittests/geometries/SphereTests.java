@@ -28,5 +28,6 @@ class SphereTests {
         // Check if the returned normal is correct
         assertEquals(expectedNormal, sphere.getNormal(p), "The normal vector of the sphere is incorrect");
         assertEquals(1, sphere.getNormal(p).length(), "The length of the normal vector should be 1");
+
     }
 }

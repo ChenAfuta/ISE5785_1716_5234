@@ -5,39 +5,41 @@ package primitives;
  * A ray is defined by a starting point and a direction vector.
  */
 public final class Ray {
-    private final Point p0;
-    private final Vector dir;
+    private final Point point;
+    private final Vector direction;
 
     /**
      * Constructs a Ray with the specified starting point and direction vector.
      * The direction vector is normalized.
-     * @param p0 the starting point of the ray
-     * @param dir the direction vector of the ray
+     * @param point the starting point of the ray
+     * @param direction the direction vector of the ray
      */
-    public Ray(Point p0, Vector dir) {
-        if (dir.equals(Vector.ZERO)) {
+    public Ray(Point point, Vector direction) {
+        if (direction.equals(Vector.ZERO)) {
             throw new IllegalArgumentException("Direction vector cannot be zero");
         }
-        this.p0 = p0;
-        this.dir = dir.normalize();
+        this.point = point;
+        this.direction = direction.normalize();
     }
 
     @Override
     public String toString() {
-        return "" + p0 + "" + dir;
+        return "" + point + "" + direction;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof Ray ray)) return false;
-        return p0.equals(ray.p0) && dir.equals(ray.dir);
+        return point.equals(ray.point) && direction.equals(ray.direction);
     }
-
-    public Point getP0(){
-         return p0;
+    public Point getPoint() {
+        return point;
     }
-    public Vector getDir(){
-        return dir;
+    public Point getPoint(double t) {
+        return point.add(direction.scale(t));
+    }
+    public Vector getDirection(){
+        return direction;
     }
 }
