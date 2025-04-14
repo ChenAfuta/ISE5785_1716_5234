@@ -1,9 +1,13 @@
 package geometries;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
-public class Plane {
+import java.util.List;
+import java.util.Collections;
+
+public class Plane implements Intersectable {
     private final Point point;
     private final Vector normal;
 
@@ -20,7 +24,6 @@ public class Plane {
         Vector v1 = p2.subtract(p1);
         Vector v2 = p3.subtract(p1);
 
-        // בדיקה אם הווקטורים תלויים ליניארית (כלומר, אחד הוא כפל סקלרי של השני)
         if (v1.normalize().equals(v2.normalize()) || v1.normalize().equals(v2.normalize().scale(-1))) {
             throw new IllegalArgumentException("The points are collinear");
         }
@@ -29,13 +32,32 @@ public class Plane {
         this.normal = v1.crossProduct(v2).normalize();
     }
 
-
-
     public Vector getNormal(Point point) {
         return this.normal;
     }
 
     public Vector getNormal() {
         return this.normal;
+    }
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        Vector rayDir = ray.getDirection();
+        Point rayOrigin = ray.getPoint();
+
+        double denominator = normal.dotProduct(rayDir);
+        if (Math.abs(denominator) < 1e-10) {
+            return null; // הקרן מקבילה למישור - אין חיתוך
+        }
+
+        Vector p0Q = point.subtract(rayOrigin);
+        double t = normal.dotProduct(p0Q) / denominator;
+
+        if (t <= 0) {
+            return null; // נקודת החיתוך נמצאת מאחורי הקרן
+        }
+
+        Point intersectionPoint = ray.getPoint(t);
+        return Collections.singletonList(intersectionPoint);
     }
 }

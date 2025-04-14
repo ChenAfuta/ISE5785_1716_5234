@@ -5,13 +5,13 @@ package geometries;
  * It serves as a base class for geometries that have a radius.
  */
 public abstract class RadialGeometry extends Geometry {
-    protected double Radius;
+    protected double radius;
 
     /**
      * Constructs a RadialGeometry with the specified radius.
      * @param radius the radius of the radial geometry
      */
     public RadialGeometry(double radius) {
-        this.Radius = radius;
+        this.radius = radius;
     }
 }
