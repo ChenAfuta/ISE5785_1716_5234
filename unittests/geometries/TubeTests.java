@@ -1,4 +1,4 @@
-package unittests.geometries;
+package geometries;
 
 import geometries.Tube;
 import primitives.Point;
@@ -16,38 +16,46 @@ import static org.junit.jupiter.api.Assertions.*;
 class TubeTests {
 
     /**
-     * Test for getting the normal vector of the tube at a given point.
+     * Test the getNormal method of Tube.
+     * The normal at a point on the surface of the tube should be perpendicular to the axis.
      */
     @Test
     void getNormal() {
-        // Create a Tube with a vector axis
+        // Create a tube with radius 2 and axis along the Z-axis
         Tube tube = new Tube(2.0, new Ray(new Point(0, 0, 0), new Vector(0, 0, 1)));
 
-        // Point on the surface (Z-axis, 2 units away from the center)
+        // Point on the tube surface, 2 units away from the axis along the X-axis
         Point p = new Point(2, 0, 3);
-        Vector expectedNormal = new Vector(1, 0, 0); // A vector crossing the axis (perpendicular to the tube's center)
+        Vector expectedNormal = new Vector(1, 0, 0); // Normal should be in the direction away from the axis
 
-        // Check if the normal is correct
+        // Verify the normal vector is as expected and has unit length
         assertEquals(expectedNormal, tube.getNormal(p), "The normal vector of the tube is incorrect");
         assertEquals(1, tube.getNormal(p).length(), "The length of the normal vector should be 1");
     }
+
+    /**
+     * Test the findIntersections method of Tube.
+     * Check different cases of ray intersection with the tube.
+     */
     @Test
     public void testFindIntersectionsTube() {
+        // Create a tube with radius 1 and axis along the Z-axis
         Tube tube = new Tube(1.0, new Ray(Point.ZERO, new Vector(0, 0, 1)));
 
         // ============ Equivalence Partitions Tests ==============
-        // TC01: Ray intersects the tube (2 points)
+
+        // TC01: Ray intersects the tube at two points
         Ray ray1 = new Ray(new Point(2, 0, 1), new Vector(-1, 0, 0));
         List<Point> result = tube.findIntersections(ray1);
         assertNotNull(result, "Expected 2 intersection points");
         assertEquals(2, result.size(), "Wrong number of points");
 
-        // TC02: Ray is outside and parallel to tube axis (0 points)
+        // TC02: Ray is outside and parallel to the tube axis, should not intersect
         Ray ray2 = new Ray(new Point(2, 0, 0), new Vector(0, 0, 1));
         assertNull(tube.findIntersections(ray2), "Parallel and outside ray - must return null");
 
-        // TC03: Ray is orthogonal and outside the tube (0 points)
+        // TC03: Ray is orthogonal and outside the tube, should not intersect
         Ray ray3 = new Ray(new Point(2, 0, 0), new Vector(0, 1, 0));
-        assertNull(tube.findIntersections(ray3), "Orthogonal ray not pointing to tube - must return null");
-}
+        assertNull(tube.findIntersections(ray3), "Orthogonal ray not pointing to tube - must return null");
+    }
 }
