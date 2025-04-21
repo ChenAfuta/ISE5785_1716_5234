@@ -21,6 +21,7 @@ public class Triangle extends Polygon {
         // קוד לפי אלגוריתם Möller–Trumbore
         Vector edge1 = vertices.get(1).subtract(vertices.get(0));
         Vector edge2 = vertices.get(2).subtract(vertices.get(0));
+
         Vector h = ray.getDirection().crossProduct(edge2);
         double a = edge1.dotProduct(h);
 

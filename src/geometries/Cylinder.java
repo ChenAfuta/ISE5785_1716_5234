@@ -4,6 +4,9 @@ import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Cylinder extends Tube {
     Double height;
 
@@ -47,6 +50,16 @@ public class Cylinder extends Tube {
     private Ray getRay() {
         return axis;
     }
+    // findIntersections - חישוב נקודות חיתוך עבור גליל
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        List<Point> intersections = super.findIntersections(ray); // השתמש במה ש-Tube כבר עושה
+
+        // כאן תוכל להוסיף חישוב חיתוך עם הבסיסים של הגליל (שני עיגולים)
+
+        return intersections;
+    }
+
 
 }
 
