@@ -3,6 +3,7 @@ package geometries;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+import primitives.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,36 +45,32 @@ public class Tube extends RadialGeometry {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
-        Vector v = axis.getDirection(); // כיוון הגליל
-        Point p0 = axis.getPoint();     // נקודת התחלה של הציר
-        Point p = ray.getPoint();      // נקודת התחלה של הקרן
-        Vector dir = ray.getDirection(); // כיוון הקרן
+        Vector v = ray.getDirection();
+        Vector va = axis.getDirection();
 
-        Vector deltaP = p.subtract(p0); // וקטור מהציר לקרן
+        // בדיקה כללית האם הקרן מקבילה לציר הגליל
+        double vVa = v.dotProduct(va);
 
-        Vector vDotDir;
-        double vDotDirScalar = dir.dotProduct(v);
-        if (vDotDirScalar == 0) {
-            vDotDir = new Vector(1, 0, 0).crossProduct(v); // כל וקטור שאינו v יתן וקטור תקף
-        } else {
-            vDotDir = v.scale(vDotDirScalar);
+        // מחשבים את הווקטור האנכי בין כיוון הקרן לציר הגליל
+        Vector temp = v.subtract(va.scale(vVa));
+
+        // אם הווקטור האנכי הוא אפס, הקרן מקבילה לציר ואין חיתוך
+        if (Util.isZero(temp.lengthSquared())) {
+            return null; // הקרן מקבילה לציר ואין חיתוך עם מעטפת
         }
-        Vector d = dir.subtract(vDotDir);
 
+        Vector vPerp = temp;
 
-        Vector vDotDeltaP;
-        double vDotDeltaPScalar = deltaP.dotProduct(v);
-        if (vDotDeltaPScalar == 0) {
-            vDotDeltaP = new Vector(1, 0, 0).crossProduct(v);
-        } else {
-            vDotDeltaP = v.scale(vDotDeltaPScalar);
-        }
-        Vector delta = deltaP.subtract(vDotDeltaP);
+        Point p0 = ray.getPoint();
+        Point pa = axis.getPoint();
 
+        Vector deltaP = p0.subtract(pa);
+        double dpVa = deltaP.dotProduct(va);
+        Vector dpPerp = deltaP.subtract(va.scale(dpVa));
 
-        double a = d.lengthSquared();
-        double b = 2 * d.dotProduct(delta);
-        double c = delta.lengthSquared() - radius * radius;
+        double a = vPerp.lengthSquared();
+        double b = 2 * vPerp.dotProduct(dpPerp);
+        double c = dpPerp.lengthSquared() - radius * radius;
 
         double discriminant = b * b - 4 * a * c;
 
@@ -81,26 +78,14 @@ public class Tube extends RadialGeometry {
             return null;
         }
 
-        double sqrtDiscriminant = Math.sqrt(discriminant);
-        if (a == 0) {
-            return null; // הקרן מקבילה לציר הגליל – אין חיתוך עם השטח הצדדי
-        }
-        double t1 = (-b + sqrtDiscriminant) / (2 * a);
-        double t2 = (-b - sqrtDiscriminant) / (2 * a);
+        double sqrtDisc = Math.sqrt(discriminant);
+        double t1 = (-b + sqrtDisc) / (2 * a);
+        double t2 = (-b - sqrtDisc) / (2 * a);
 
-        List<Point> result = new ArrayList<>();
+        List<Point> intersections = new ArrayList<>();
+        if (t1 > 0) intersections.add(ray.getPoint(t1));
+        if (t2 > 0) intersections.add(ray.getPoint(t2));
 
-        if (t1 > 0) result.add(ray.getPoint(t1));
-        if (t2 > 0) result.add(ray.getPoint(t2));
-
-        return result.isEmpty() ? null : result;
+        return intersections.isEmpty() ? null : intersections;
     }
-
 }
-
-
-
-
-
-
-

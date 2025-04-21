@@ -6,7 +6,7 @@ import geometries.Polygon;
 import org.junit.jupiter.api.Test;
 
 import primitives.*;
-
+import geometries.*;
 /**
  * Testing Polygons.
  * @author Dan
