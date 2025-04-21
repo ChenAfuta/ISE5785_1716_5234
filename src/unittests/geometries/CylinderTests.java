@@ -47,7 +47,7 @@ class CylinderTests {
         assertEquals(expectedNormal3, cylinder.getNormal(p3), "The normal vector on the top base is incorrect");
     }
     @Test
-    public void testFindIntersectionsCylinder() {
+    public void testFindIntersections() {
         Cylinder cylinder = new Cylinder(new Ray(Point.ZERO, new Vector(0, 0, 1)), 1.0, 3.0);
 
         // ============ Equivalence Partitions Tests ==============
@@ -60,5 +60,5 @@ class CylinderTests {
         // TC02: Ray is outside and parallel to axis (0 points)
         Ray ray2 = new Ray(new Point(2, 0, 0), new Vector(0, 0, 1));
         assertNull(cylinder.findIntersections(ray2), "Parallel and outside - must return null");
-}
+    }
 }

@@ -86,6 +86,6 @@ class PlaneTests {
 
         // TC14: Ray is orthogonal and starts after the plane
         Ray ray6 = new Ray(new Point(0, 0, 2), new Vector(0, 0, 1));
-        assertNull(plane.findIntersections(ray6), "Orthogonal ray above plane - must return null");
+        assertNull(plane.findIntersections(ray6), "Orthogonal ray above plane - must return null");
     }
 }
