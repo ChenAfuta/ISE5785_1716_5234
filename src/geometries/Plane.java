@@ -39,25 +39,22 @@ public class Plane implements Intersectable {
     public Vector getNormal() {
         return this.normal;
     }
-
     @Override
     public List<Point> findIntersections(Ray ray) {
-        Vector rayDir = ray.getDirection();
-        Point rayOrigin = ray.getPoint();
-
-        double denominator = normal.dotProduct(rayDir);
+        double denominator = normal.dotProduct(ray.getDirection());
         if (Math.abs(denominator) < 1e-10) {
-            return null; // הקרן מקבילה למישור - אין חיתוך
+            return Collections.emptyList();
         }
 
-        Vector p0Q = point.subtract(rayOrigin);
+        Vector p0Q = point.subtract(ray.getPoint());
         double t = normal.dotProduct(p0Q) / denominator;
 
         if (t <= 0) {
-            return null; // נקודת החיתוך נמצאת מאחורי הקרן
+            return Collections.emptyList();
         }
 
         Point intersectionPoint = ray.getPoint(t);
-        return Collections.singletonList(intersectionPoint);
+        return List.of(intersectionPoint);
     }
+
 }

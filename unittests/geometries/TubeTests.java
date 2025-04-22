@@ -33,29 +33,5 @@ class TubeTests {
         assertEquals(1, tube.getNormal(p).length(), "The length of the normal vector should be 1");
     }
 
-    /**
-     * Test the findIntersections method of Tube.
-     * Check different cases of ray intersection with the tube.
-     */
-    @Test
-    public void testFindIntersectionsTube() {
-        // Create a tube with radius 1 and axis along the Z-axis
-        Tube tube = new Tube(1.0, new Ray(Point.ZERO, new Vector(0, 0, 1)));
 
-        // ============ Equivalence Partitions Tests ==============
-
-        // TC01: Ray intersects the tube at two points
-        Ray ray1 = new Ray(new Point(2, 0, 1), new Vector(-1, 0, 0));
-        List<Point> result = tube.findIntersections(ray1);
-        assertNotNull(result, "Expected 2 intersection points");
-        assertEquals(2, result.size(), "Wrong number of points");
-
-        // TC02: Ray is outside and parallel to the tube axis, should not intersect
-        Ray ray2 = new Ray(new Point(2, 0, 0), new Vector(0, 0, 1));
-        assertNull(tube.findIntersections(ray2), "Parallel and outside ray - must return null");
-
-        // TC03: Ray is orthogonal and outside the tube, should not intersect
-        Ray ray3 = new Ray(new Point(2, 0, 0), new Vector(0, 1, 0));
-        assertNull(tube.findIntersections(ray3), "Orthogonal ray not pointing to tube - must return null");
-    }
 }

@@ -37,46 +37,5 @@ public class Cylinder extends Tube {
         return point.subtract(o).normalize();
     }
 
-    @Override
-    public List<Point> findIntersections(Ray ray) {
-        List<Point> result = new ArrayList<>();
 
-        List<Point> tubeInters = super.findIntersections(ray);
-        if (tubeInters != null) {
-            for (Point p : tubeInters) {
-                double t = axis.getDirection().dotProduct(p.subtract(axis.getPoint()));
-                if (t >= 0 && t <= height) {
-                    result.add(p);
-                }
-            }
-        }
-
-        // חישוב חיתוך עם בסיס תחתון
-        Vector v = ray.getDirection();
-        Point p0 = ray.getPoint();
-        Vector dir = axis.getDirection();
-
-        double denom = v.dotProduct(dir);
-        if (!primitives.Util.isZero(denom)) {
-            double t = axis.getPoint().subtract(p0).dotProduct(dir) / denom;
-            if (t >= 0) {
-                Point p = ray.getPoint(t);
-                if (p.subtract(axis.getPoint()).lengthSquared() <= radius * radius) {
-                    result.add(p);
-                }
-            }
-
-            // חישוב חיתוך עם בסיס עליון
-            Point topCenter = axis.getPoint(height);
-            t = topCenter.subtract(p0).dotProduct(dir) / denom;
-            if (t >= 0) {
-                Point p = ray.getPoint(t);
-                if (p.subtract(topCenter).lengthSquared() <= radius * radius) {
-                    result.add(p);
-                }
-            }
-        }
-
-        return result.isEmpty() ? null : result;
-    }
 }

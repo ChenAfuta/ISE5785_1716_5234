@@ -52,25 +52,5 @@ class CylinderTests {
         assertEquals(expectedNormal3, cylinder.getNormal(p3), "The normal vector on the top base is incorrect");
     }
 
-    /**
-     * Test for finding intersections of a ray with the cylinder.
-     * Verifies different cases of ray-cylinder intersections.
-     */
-    @Test
-    public void testFindIntersections() {
-        // Create a cylinder with a height of 3 and radius of 1
-        Cylinder cylinder = new Cylinder(new Ray(Point.ZERO, new Vector(0, 0, 1)), 1.0, 3.0);
 
-        // ============ Equivalence Partitions Tests ==============
-
-        // TC01: Ray intersects the cylinder (2 points)
-        Ray ray1 = new Ray(new Point(2, 0, 1), new Vector(-1, 0, 0)); // Ray passing through the cylinder
-        List<Point> result = cylinder.findIntersections(ray1); // Find intersections
-        assertNotNull(result, "Expected 2 intersection points"); // Assert that intersections exist
-        assertEquals(2, result.size(), "Wrong number of points"); // Assert the number of intersection points
-
-        // TC02: Ray is outside and parallel to axis (0 points)
-        Ray ray2 = new Ray(new Point(2, 0, 0), new Vector(0, 0, 1)); // Ray parallel to the cylinder's axis
-        assertNull(cylinder.findIntersections(ray2), "Parallel and outside - must return null"); // Assert no intersections
-}
 }
