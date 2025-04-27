@@ -89,5 +89,5 @@ public class GeometriesTests {
         Ray ray = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
         List<Point> intersections = geometries.findIntersections(ray);
         assertEquals(4, intersections.size(), "Expected 4 intersections with all shapes");
-    }
+}
 }

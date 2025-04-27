@@ -39,7 +39,6 @@ public class Plane implements Intersectable {
     public Vector getNormal() {
         return this.normal;
     }
-
     @Override
     public List<Point> findIntersections(Ray ray) {
         double denominator = normal.dotProduct(ray.getDirection());
@@ -57,4 +56,5 @@ public class Plane implements Intersectable {
         Point intersectionPoint = ray.getPoint(t);
         return List.of(intersectionPoint);
     }
+
 }
