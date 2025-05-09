@@ -22,7 +22,7 @@ public class CameraRayIntersectionsTests {
      * @param expected  The expected count of intersections.
      * @param msg       An optional message to be displayed in case of assertion failure.
      *
-     * <p>This method iterates over a 3x3 grid of points on the viewport, constructs rays from
+     * <p>This method iterates over a 3x3 grid of points o  n the viewport, constructs rays from
      * each point, and counts the total number of intersections with the specified geometry.
      * The expected count is then compared with the actual count using the assertEquals method.</p>
      */
