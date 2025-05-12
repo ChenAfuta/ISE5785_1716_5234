@@ -9,7 +9,6 @@ import primitives.*;
 
 /**
  * Testing Camera Class
- * @author Dan
  */
 class CameraTest {
    /** Camera builder for the tests */

@@ -4,7 +4,6 @@ import primitives.Color;
 import primitives.Double3;
 /**
  * represents the lightning at the scene
- * @author Elad and Amitay
  */
 public class
 AmbientLight {

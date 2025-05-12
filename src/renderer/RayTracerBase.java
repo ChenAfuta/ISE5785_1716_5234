@@ -6,7 +6,6 @@ import scene.Scene;
 
 /**
  * this class represents an abstract ray tracer
- * @author Elad and Amitay
  */
 public abstract class RayTracerBase {
     protected Scene scene;

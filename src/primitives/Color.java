@@ -40,7 +40,7 @@ public class Color {
     * @param rgb triad of Red/Green/Blue components
     */
    private Color(Double3 rgb) {
-      if (rgb.d1 < 0 || rgb.d2 < 0 || rgb.d3 < 0)
+      if (rgb.d1() < 0 || rgb.d2() < 0 || rgb.d3() < 0)
          throw new IllegalArgumentException("Negative color component is illegal");
       this.rgb = rgb;
    }
@@ -57,9 +57,9 @@ public class Color {
     * @return java.awt.Color object based on this Color RGB components
     */
    public java.awt.Color getColor() {
-      int ir = (int) rgb.d1;
-      int ig = (int) rgb.d2;
-      int ib = (int) rgb.d3;
+      int ir = (int) rgb.d1();
+      int ig = (int) rgb.d2();
+      int ib = (int) rgb.d3();
       return new java.awt.Color(ir > 255 ? 255 : ir, ig > 255 ? 255 : ig, ib > 255 ? 255 : ib);
    }
 
@@ -69,13 +69,13 @@ public class Color {
     * @return        new Color object which is a result of the operation
     */
    public Color add(Color... colors) {
-      double rr = rgb.d1;
-      double rg = rgb.d2;
-      double rb = rgb.d3;
+      double rr = rgb.d1();
+      double rg = rgb.d2();
+      double rb = rgb.d3();
       for (Color c : colors) {
-         rr += c.rgb.d1;
-         rg += c.rgb.d2;
-         rb += c.rgb.d3;
+         rr += c.rgb.d1();
+         rg += c.rgb.d2();
+         rb += c.rgb.d3();
       }
       return new Color(rr, rg, rb);
    }
@@ -86,7 +86,7 @@ public class Color {
     * @return   new Color object which is the result of the operation
     */
    public Color scale(Double3 k) {
-      if (k.d1 < 0.0 || k.d2 < 0.0 || k.d3 < 0.0)
+      if (k.d1() < 0.0 || k.d2() < 0.0 || k.d3() < 0.0)
          throw new IllegalArgumentException("Can't scale a color by a negative number");
       return new Color(rgb.product(k));
    }

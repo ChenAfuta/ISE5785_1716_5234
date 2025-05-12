@@ -7,7 +7,7 @@ import primitives.Vector;
 import java.util.List;
 import java.util.Collections;
 
-public class Plane implements Intersectable {
+public class Plane extends Geometry implements Intersectable {
     private final Point point;
     private final Vector normal;
 

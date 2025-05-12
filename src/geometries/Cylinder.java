@@ -11,7 +11,7 @@ import java.util.List;
  * A cylinder is defined by a central axis (represented by a ray), a radius, and a height.
  * It extends the {@code Tube} class by limiting the infinite tube to a finite height.
  */
-public class Cylinder extends Tube {
+public class Cylinder extends Tube implements Intersectable {
     private final double height;
 
     /**

@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests for renderer.Camera class and geometries.Intersectable
- * @author Ariel Atias
  */
 public class CameraRayIntersectionsTests {
 

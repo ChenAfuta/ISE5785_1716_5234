@@ -9,11 +9,11 @@ import lighting.AmbientLight;
 import primitives.*;
 import scene.Scene;
 
-/** Test rendering a basic image
- * @author Dan */
+
+
 public class RenderTests {
    /** Scene of the tests */
-   private final Scene          scene  = new Scene("Test scene");
+   private final Scene  scene  = new Scene("Test scene");
    /** Camera builder of the tests */
    private final Camera.Builder camera = Camera.getBuilder()
       .setRayTracer(new SimpleRayTracer(scene))
@@ -59,5 +59,5 @@ public class RenderTests {
 //         .printGrid(100, new Color(YELLOW))
 //         .writeToImage();
 //   }
-}
 
+}

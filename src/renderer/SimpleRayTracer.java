@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * this class represents a simple ray tracer
- * @author Elad and Amitay
  */
 public class SimpleRayTracer extends RayTracerBase{
 

@@ -11,7 +11,7 @@ import static primitives.Util.alignZero;
 /**
  * Sphere class represents a sphere in 3D Cartesian coordinate system.
  */
-public class Sphere extends RadialGeometry {
+public class Sphere extends RadialGeometry implements Intersectable {
     /**
      * The center point of the object.
      */

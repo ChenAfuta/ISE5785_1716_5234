@@ -1,5 +1,7 @@
 package primitives;
 
+import java.util.List;
+
 /**
  * The Ray class represents a ray in a 3D space.
  * A ray is defined by a starting point and a direction vector.
@@ -58,5 +60,21 @@ public final class Ray {
         if (this == obj) return true;
         if (!(obj instanceof Ray ray)) return false;
         return point.equals(ray.point) && direction.equals(ray.direction);
+    }
+    /**
+     * gets list of points and returns the point that closest to ray's head
+     * @param points list of points
+     * @return the point that closest to ray's head
+     */
+    public Point findClosestPoint(List<Point> points){
+        if (points == null || points.isEmpty())
+            return null;
+
+        Point closest = points.get(0);
+        for(int i = 1; i<points.size();i+=1)
+            if(points.get(i).distanceSquared(point)<closest.distanceSquared(point))
+                closest = points.get(i);
+
+        return closest;
     }
 }

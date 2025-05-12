@@ -1,8 +1,5 @@
 package renderer;
-import geometries.Geometry;
-import geometries.Plane;
-import geometries.Sphere;
-import geometries.Triangle;
+import geometries.*;
 import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Vector;
@@ -12,11 +9,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 /**
  * integration tests for renderer
- * @author Elad and Amitay
  */
 class IntegrationTest {
 
-    private static int getIntersections(Geometry geometry, Camera camera) {
+    private static int getIntersections(Intersectable geometry, Camera camera) {
         int intersections = 0;
         for (int j = 0; j < 3; j += 1)
             for (int i = 0; i < 3; i++) {
