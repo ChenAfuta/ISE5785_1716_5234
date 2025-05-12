@@ -6,7 +6,6 @@ import java.util.MissingResourceException;
 
 /**
  * represents the camera
-
  */
 public class Camera implements Cloneable{
     private Point p0;
@@ -261,7 +260,7 @@ public class Camera implements Cloneable{
             } catch (CloneNotSupportedException e) {
                 throw new RuntimeException(e);
             }
-        }
+  }
 
-    }
+  }
 }

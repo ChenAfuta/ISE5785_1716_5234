@@ -1,4 +1,6 @@
 package primitives;
+import java.util.List;
+
 
 import java.util.List;
 
@@ -6,7 +8,8 @@ import java.util.List;
  * The Ray class represents a ray in a 3D space.
  * A ray is defined by a starting point and a direction vector.
  */
-public final class Ray {
+public final class Ray
+{
     private final Point point;
     private final Vector direction;
 
