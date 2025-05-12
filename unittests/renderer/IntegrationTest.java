@@ -3,6 +3,7 @@ import geometries.*;
 import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Vector;
+import scene.Scene;
 
 import java.util.List;
 
@@ -29,6 +30,9 @@ class IntegrationTest {
             .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
             .setVpSize(3, 3)
             .setVpDistance(1)
+            .setImageWriter(new ImageWriter("test", 1000, 1000))
+            .setRayTracer(new SimpleRayTracer(new Scene("test")))
+
             .build();
 
     int intersections;
@@ -54,6 +58,9 @@ class IntegrationTest {
                 .setVpSize(3, 3)
                 .setVpDistance(1)
                 .setLocation(new Point(0, 0, 0.5))
+                .setImageWriter(new ImageWriter("test", 1000, 1000))
+                .setRayTracer(new SimpleRayTracer(new Scene("test")))
+
                 .build();
 
         intersections = getIntersections(sphere2, camera);
@@ -71,6 +78,9 @@ class IntegrationTest {
                 .setVpSize(3, 3)
                 .setVpDistance(1)
                 .setLocation(Point.ZERO)
+                .setImageWriter(new ImageWriter("test", 1000, 1000))
+                .setRayTracer(new SimpleRayTracer(new Scene("test")))
+
                 .build();
         intersections = getIntersections(sphere4, camera);
         assertEquals(9, intersections, "view plane is inside the sphere");

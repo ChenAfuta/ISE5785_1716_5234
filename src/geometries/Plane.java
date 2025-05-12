@@ -2,20 +2,44 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 import java.util.List;
-import java.util.Collections;
 
+/**
+ * The {@code Plane} class represents an infinite plane in 3D space.
+ * <p>
+ * A plane is defined by a point on the plane and a normal vector perpendicular to it.
+ * This class implements the {@link Intersectable} interface and extends {@link Geometry}.
+ */
 public class Plane extends Geometry implements Intersectable {
+
+    /** A point on the plane. */
     private final Point point;
+
+    /** The normalized vector perpendicular to the plane (its normal). */
     private final Vector normal;
 
+    /**
+     * Constructs a plane from a point and a normal vector.
+     *
+     * @param point  a point on the plane
+     * @param normal the normal vector to the plane (will be normalized)
+     */
     public Plane(Point point, Vector normal) {
         this.point = point;
         this.normal = normal.normalize();
     }
 
+    /**
+     * Constructs a plane from three non-collinear points.
+     *
+     * @param p1 the first point
+     * @param p2 the second point
+     * @param p3 the third point
+     * @throws IllegalArgumentException if any two points are equal or if the points are collinear
+     */
     public Plane(Point p1, Point p2, Point p3) {
         if (p1.equals(p2) || p1.equals(p3) || p2.equals(p3)) {
             throw new IllegalArgumentException("Two or more points are identical");
@@ -32,29 +56,57 @@ public class Plane extends Geometry implements Intersectable {
         this.normal = v1.crossProduct(v2).normalize();
     }
 
+    /**
+     * Returns the normal vector of the plane at the given point (constant for a plane).
+     *
+     * @param point a point on the plane (not used since the normal is the same everywhere)
+     * @return the normal vector
+     */
     public Vector getNormal(Point point) {
         return this.normal;
     }
 
+    /**
+     * Returns the normal vector of the plane.
+     *
+     * @return the normal vector
+     */
     public Vector getNormal() {
         return this.normal;
     }
+
+    /**
+     * Finds the intersection point of the plane with a given {@link Ray}.
+     * <p>
+     * The method checks whether the ray is parallel to the plane, starts on the plane,
+     * or intersects it at a point in the ray's direction.
+     *
+     * @param ray the ray to intersect with the plane
+     * @return a list containing the intersection point if it exists; {@code null} otherwise
+     */
     @Override
     public List<Point> findIntersections(Ray ray) {
-        double denominator = normal.dotProduct(ray.getDirection());
-        if (Math.abs(denominator) < 1e-10) {
-            return Collections.emptyList();
-        }
+        double nv = Util.alignZero(normal.dotProduct(ray.getDirection()));
 
-        Vector p0Q = point.subtract(ray.getPoint());
-        double t = normal.dotProduct(p0Q) / denominator;
+        // If the ray is parallel to the plane, there's no intersection
+        if (Util.isZero(nv))
+            return null;
 
-        if (t <= 0) {
-            return Collections.emptyList();
-        }
+        // If the ray starts exactly at the reference point of the plane
+        if (ray.getPoint().equals(point))
+            return null;
 
-        Point intersectionPoint = ray.getPoint(t);
-        return List.of(intersectionPoint);
+        Vector headToQ = point.subtract(ray.getPoint());
+        double nHeadToQ = Util.alignZero(normal.dotProduct(headToQ));
+
+        // If the ray starts somewhere on the plane (but not at reference point)
+        if (Util.isZero(nHeadToQ))
+            return null;
+
+        double t = Util.alignZero(nHeadToQ / nv);
+        if (t < 0)
+            return null;
+
+        return List.of(ray.getPoint(t));
     }
-
 }

@@ -2,6 +2,7 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 import java.util.List;
@@ -9,62 +10,75 @@ import java.util.List;
 import static primitives.Util.alignZero;
 
 /**
- * Sphere class represents a sphere in 3D Cartesian coordinate system.
+ * The {@code Sphere} class represents a 3D sphere in Cartesian space.
+ * <p>
+ * A sphere is defined by its center point and radius.
+ * This class extends {@link RadialGeometry} and implements the {@link Intersectable} interface.
  */
 public class Sphere extends RadialGeometry implements Intersectable {
-    /**
-     * The center point of the object.
-     */
+
+    /** The center point of the sphere. */
     protected final Point center;
 
-
     /**
-     * Constructor for Sphere.
+     * Constructs a {@code Sphere} with a given radius and center point.
      *
-     * @param p the center point of the sphere
      * @param radius the radius of the sphere
+     * @param p      the center point of the sphere
      */
-    public Sphere( double radius, Point p) {
+    public Sphere(double radius, Point p) {
         super(radius);
         this.center = p;
     }
 
+    /**
+     * Returns the normal vector to the surface of the sphere at the given point.
+     * <p>
+     * The normal is calculated as the normalized vector from the center to the point.
+     *
+     * @param point a point on the surface of the sphere
+     * @return the normal vector at the given point
+     */
     @Override
     protected Vector getNormal(Point point) {
         return point.subtract(center).normalize();
     }
 
+    /**
+     * Finds the intersection points between the sphere and a given ray.
+     * <p>
+     * The method calculates the distance from the ray to the center of the sphere,
+     * and determines if and where the ray intersects the sphere.
+     *
+     * @param ray the ray to intersect with the sphere
+     * @return a list of intersection points, or {@code null} if no intersections exist
+     */
     @Override
     public List<Point> findIntersections(Ray ray) {
-        Vector v = ray.getDirection();
-        Point p0 = ray.getPoint();
+        // Special case: ray starts at the center of the sphere
+        if (center.equals(ray.getPoint()))
+            return List.of(ray.getPoint(radius));
 
-        // if the ray starts at the center of the sphere
+        Vector headToCenter = center.subtract(ray.getPoint());
 
-        if(p0.equals(center))
-            return List.of(p0.add(v.scale(radius)));
+        // tm = projection of center-to-ray-origin vector onto ray direction
+        double tm = alignZero(ray.getDirection().dotProduct(headToCenter));
 
-        Vector u = center.subtract(p0);
-        double tm = alignZero(v.dotProduct(u));
-        double d2 = alignZero(u.lengthSquared() - tm * tm);
+        // d = shortest distance from center to ray
+        double d = alignZero(Math.sqrt(headToCenter.lengthSquared() - tm * tm));
 
-        if(alignZero(d2 - radius * radius)>0)
+        // If d >= radius, the ray misses the sphere
+        if (d >= radius || (tm < 0 && headToCenter.lengthSquared() >= radius * radius))
             return null;
 
-        double th = alignZero(Math.sqrt(radius * radius - d2));
-        double t1 = alignZero(tm - th);
-        double t2 = alignZero(tm + th);
+        // th = distance from closest point on ray to intersection points
+        double th = alignZero(Math.sqrt(radius * radius - d * d));
 
-        if(t1 > 0 && t2 > 0)
-            return List.of(ray.getPoint(t1), ray.getPoint(t2));
+        // Two intersection points
+        if (tm - th > 0)
+            return List.of(ray.getPoint(tm - th), ray.getPoint(tm + th));
 
-        if(t1 > 0)
-            return List.of(ray.getPoint(t1));
-
-        if(t2 > 0)
-            return List.of(ray.getPoint(t2));
-
-        return null;
-
+        // One intersection point (tangent or starts inside)
+        return List.of(ray.getPoint(tm + th));
     }
 }

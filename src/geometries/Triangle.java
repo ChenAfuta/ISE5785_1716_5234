@@ -1,56 +1,66 @@
 package geometries;
+
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 import java.util.List;
 
+/**
+ * The {@code Triangle} class represents a triangle in 3D space.
+ * <p>
+ * A triangle is a special case of a polygon with exactly three vertices.
+ * It extends the {@link Polygon} class and inherits its properties and methods.
+ */
 public class Triangle extends Polygon {
 
     /**
-     * Constructor for a triangle using three points.
-     * @param a first point
-     * @param b second point
-     * @param c third point
+     * Constructs a triangle defined by three vertices.
+     *
+     * @param a the first vertex
+     * @param b the second vertex
+     * @param c the third vertex
      */
     public Triangle(Point a, Point b, Point c) {
         super(a, b, c);
-
     }
+
+    /**
+     * Finds the intersection points between a given {@link Ray} and the triangle.
+     * <p>
+     * This method first checks if the ray intersects the plane containing the triangle.
+     * If an intersection is found, it further checks whether the intersection point
+     * lies inside the triangle using the inside-outside test based on cross products
+     * and dot products with the ray's direction.
+     *
+     * @param ray the ray to intersect with the triangle
+     * @return a list containing the intersection point if it lies within the triangle;
+     *         {@code null} if there is no intersection or the point is outside the triangle
+     */
     @Override
     public List<Point> findIntersections(Ray ray) {
-        // קוד לפי אלגוריתם Möller–Trumbore
-        Vector edge1 = vertices.get(1).subtract(vertices.get(0));
-        Vector edge2 = vertices.get(2).subtract(vertices.get(0));
-
-        Vector h = ray.getDirection().crossProduct(edge2);
-        double a = edge1.dotProduct(h);
-
-        if (a > -0.0001 && a < 0.0001)
-            return null; // הקרן מקבילה למישור המשולש
-
-        double f = 1.0 / a;
-        Vector s = ray.getPoint().subtract(vertices.get(0));
-        double u = f * s.dotProduct(h);
-
-        if (u < 0.0 || u > 1.0)
+        List<Point> planeIntersection = plane.findIntersections(ray);
+        if (planeIntersection == null) // No intersection with the plane
             return null;
 
-        Vector q = s.crossProduct(edge1);
-        double v = f * ray.getDirection().dotProduct(q);
+        // Vectors from ray origin to triangle vertices
+        Vector v1 = vertices.get(0).subtract(ray.getPoint());
+        Vector v2 = vertices.get(1).subtract(ray.getPoint());
+        Vector v3 = vertices.get(2).subtract(ray.getPoint());
 
-        if (v < 0.0 || u + v > 1.0)
-            return null;
+        // Normal vectors to triangle edges using cross product
+        Vector n1 = v1.crossProduct(v2).normalize();
+        Vector n2 = v2.crossProduct(v3).normalize();
+        Vector n3 = v3.crossProduct(v1).normalize();
 
-        double t = f * edge2.dotProduct(q);
-
-        if (t > 0.0001) {
-            Point intersectionPoint = ray.getPoint(t);
-            return List.of(intersectionPoint);
+        // Check if the intersection point is inside the triangle using sign of dot products
+        if (Util.compareSign(ray.getDirection().dotProduct(n1), ray.getDirection().dotProduct(n2)) &&
+                Util.compareSign(ray.getDirection().dotProduct(n2), ray.getDirection().dotProduct(n3)) &&
+                Util.compareSign(ray.getDirection().dotProduct(n3), ray.getDirection().dotProduct(n1))) {
+            return planeIntersection;
         }
 
-        return null; // אין חיתוך
+        return null;
     }
-
-
 }
