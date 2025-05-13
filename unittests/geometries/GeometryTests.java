@@ -14,13 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class GeometryTests {
 
-    /**
-     * Placeholder test for getNormal() - currently not implemented.
-     */
-    @Test
-    void testGetNormal() {
-        // TODO: Implement test for getNormal() if needed
-    }
 
     /**
      * Test the findIntersections method for a geometry (Sphere in this case).

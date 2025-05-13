@@ -33,9 +33,6 @@ class TubeTests {
         assertEquals(1, tube.getNormal(p).length(), "The length of the normal vector should be 1");
     }
 
-    /**
-     * Test the findIntersections method of Tube.
-     * Check different cases of ray intersection with the tube.
-     */
+
 
 }
