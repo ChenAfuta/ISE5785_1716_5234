@@ -5,8 +5,10 @@ import primitives.Double3;
 /**
  * represents the lightning at the scene
  */
-public class
-AmbientLight {
+public class AmbientLight {
+    /**
+     * the intensity of the light
+     */
     final private Color intensity;
 
     /**
