@@ -125,7 +125,6 @@ public class Camera implements Cloneable{
 
     /**
      * the builder of the camera
-     * @author Elad and Amitay
      */
     public static class Builder{
         private final Camera camera = new Camera();
@@ -260,7 +259,7 @@ public class Camera implements Cloneable{
             } catch (CloneNotSupportedException e) {
                 throw new RuntimeException(e);
             }
-  }
+        }
 
-  }
+    }
 }

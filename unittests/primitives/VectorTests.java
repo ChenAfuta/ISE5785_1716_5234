@@ -5,12 +5,14 @@ import primitives.Vector;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the Vector class.
+ * Unit tests for the {@link primitives.Vector} class.
+ * This class tests various operations on vectors such as addition, scaling, dot product, cross product, and normalization.
  */
 class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#add(Vector)}.
+     * Verifies that the addition of two vectors produces the correct result.
      */
     @Test
     void add() {
@@ -22,6 +24,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#scale(double)}.
+     * Verifies that scaling a vector by a scalar produces the correct result.
      */
     @Test
     void scale() {
@@ -32,6 +35,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#dotProduct(Vector)}.
+     * Verifies that the dot product of two vectors is calculated correctly.
      */
     @Test
     void dotProduct() {
@@ -43,6 +47,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#crossProduct(Vector)}.
+     * Verifies that the cross product of two vectors is calculated correctly.
      */
     @Test
     void crossProduct() {
@@ -54,6 +59,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#lengthSquared()}.
+     * Verifies that the squared length of a vector is calculated correctly.
      */
     @Test
     void lengthSquared() {
@@ -64,6 +70,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#length()}.
+     * Verifies that the length of a vector is calculated correctly.
      */
     @Test
     void length() {
@@ -74,6 +81,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#normalize()}.
+     * Verifies that a vector is normalized correctly.
      */
     @Test
     void normalize() {

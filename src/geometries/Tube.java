@@ -16,14 +16,16 @@ import java.util.List;
  */
 public class Tube extends RadialGeometry {
 
-    /** The central axis (infinite ray) that defines the orientation and location of the tube. */
+    /**
+     * The central axis (infinite ray) that defines the orientation and location of the tube.
+     */
     protected final Ray axis;
 
     /**
      * Constructs a new {@code Tube} with the given radius and central axis.
      *
      * @param radius the radius of the tube (must be positive)
-     * @param ray the central axis of the tube
+     * @param ray    the central axis of the tube
      */
     public Tube(Double radius, Ray ray) {
         super(radius);

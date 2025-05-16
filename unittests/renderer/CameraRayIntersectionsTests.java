@@ -4,31 +4,29 @@ import geometries.*;
 import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Vector;
+import scene.Scene;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests for renderer.Camera class and geometries.Intersectable
+ * Unit tests for the {@link renderer.Camera} class and {@link geometries.Intersectable} interface.
+ * This class tests the intersection calculations between camera rays and various geometries.
  */
 public class CameraRayIntersectionsTests {
 
     /**
-     * Asserts the count of intersections between a given Camera and an Intersectable geometry
-     * when rays are cast from a camera to on the view plane.
+     * Asserts the count of intersections between a given {@link renderer.Camera} and an {@link geometries.Intersectable} geometry
+     * when rays are cast from the camera to the view plane.
      *
-     * @param camera    The Camera instance used to cast rays.
-     * @param geometry  The Intersectable geometry to test for intersections.
-     * @param expected  The expected count of intersections.
-     * @param msg       An optional message to be displayed in case of assertion failure.
-     *
-     * <p>This method iterates over a 3x3 grid of points o  n the viewport, constructs rays from
-     * each point, and counts the total number of intersections with the specified geometry.
-     * The expected count is then compared with the actual count using the assertEquals method.</p>
+     * @param camera   The {@link renderer.Camera} instance used to cast rays.
+     * @param geometry The {@link geometries.Intersectable} geometry to test for intersections.
+     * @param expected The expected count of intersections.
+     * @param msg      An optional message to be displayed in case of assertion failure.
      */
-    private void assertEqualsCountOfIntersections(Camera camera, Intersectable geometry, int expected, String msg){
+    private void assertEqualsCountOfIntersections(Camera camera, Intersectable geometry, int expected, String msg) {
         int count = 0;
-        for(int i = 0; i < 3; i++){
-            for (int j = 0; j < 3; j++){
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
                 var intersections = geometry.findIntersections(camera.constructRay(3, 3, j, i));
                 count += intersections == null ? 0 : intersections.size();
             }
@@ -37,19 +35,18 @@ public class CameraRayIntersectionsTests {
     }
 
     /**
-     * The camera and the view plane that we will use for all the tests.
-     * distance from camera to view plane: 1
-     * view plane: 3X3
-     *
-     * We define the location in the tests.
+     * A {@link renderer.Camera.Builder} instance used to configure and build the camera for the tests.
+     * The camera is configured with a view plane size of 3x3 and a distance of 1 from the view plane.
      */
     private final Camera.Builder camera = Camera.getBuilder()
             .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
             .setVpSize(3, 3)
-            .setVpDistance(1);
+            .setVpDistance(1)
+            .setImageWriter(new ImageWriter("test", 1, 1))
+            .setRayTracer(new SimpleRayTracer(new Scene("Test")));
 
     /**
-     * Tests the intersection calculations between a camera and spheres.
+     * Tests the intersection calculations between a {@link renderer.Camera} and {@link geometries.Sphere}.
      */
     @Test
     void CameraSphereIntersections() {
@@ -80,39 +77,39 @@ public class CameraRayIntersectionsTests {
     }
 
     /**
-     * Tests the intersection calculations between a camera and plane.
+     * Tests the intersection calculations between a {@link renderer.Camera} and {@link geometries.Plane}.
      */
     @Test
     void CameraPlaneIntersections() {
         // TC01: Plane is parallel to Camera and view plane.
         assertEqualsCountOfIntersections(camera.setLocation(new Point(0, 0, 1)).build(),
-                new Plane(new Point(0,5,-2), new Point(1,-3,-2), new Point(5,-3,-2)), 9,
+                new Plane(new Point(0, 5, -2), new Point(1, -3, -2), new Point(5, -3, -2)), 9,
                 "Wrong number of camera's intersection points in plane (TC01).");
 
         // TC02: Plane is not parallel to Camera and view plane.
         assertEqualsCountOfIntersections(camera.setLocation(new Point(0, 0, 1)).build(),
-                new Plane(new Point(0,5,0), new Point(1,-3,-2), new Point(5,-3,-2)), 9,
+                new Plane(new Point(0, 5, 0), new Point(1, -3, -2), new Point(5, -3, -2)), 9,
                 "Wrong number of camera's intersection points in plane (TC02).");
 
         // TC03: Plane is parallel to Camera and view plane, and the pixels in the bottom row do not create intersections.
         assertEqualsCountOfIntersections(camera.setLocation(new Point(0, 0, 1)).build(),
-                new Plane(new Point(0,0,-2), new Point(0,-2,-4), new Point(-2,0,-2)), 6,
+                new Plane(new Point(0, 0, -2), new Point(0, -2, -4), new Point(-2, 0, -2)), 6,
                 "Wrong number of camera's intersection points in plane (TC03).");
     }
 
     /**
-     * Tests the intersection calculations between a camera and triangle.
+     * Tests the intersection calculations between a {@link renderer.Camera} and {@link geometries.Triangle}.
      */
     @Test
     void CameraTriangleIntersections() {
         // TC01: Triangle is short.
         assertEqualsCountOfIntersections(camera.setLocation(new Point(0, 0, 1)).build(),
-                new Triangle(new Point(0,1,-2), new Point(1,-1,-2), new Point(-1,-1,-2)), 1,
+                new Triangle(new Point(0, 1, -2), new Point(1, -1, -2), new Point(-1, -1, -2)), 1,
                 "Wrong number of camera's intersection points in triangle (TC01).");
 
-        // TC01: Triangle is long.
+        // TC02: Triangle is long.
         assertEqualsCountOfIntersections(camera.setLocation(new Point(0, 0, 1)).build(),
-                new Triangle(new Point(0,20,-2), new Point(1,-1,-2), new Point(-1,-1,-2)), 2,
+                new Triangle(new Point(0, 20, -2), new Point(1, -1, -2), new Point(-1, -1, -2)), 2,
                 "Wrong number of camera's intersection points in triangle (TC02).");
     }
 }
