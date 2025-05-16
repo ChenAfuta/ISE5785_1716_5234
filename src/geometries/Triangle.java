@@ -29,10 +29,8 @@ public class Triangle extends Polygon {
     /**
      * Finds the intersection points between a given {@link Ray} and the triangle.
      * <p>
-     * This method first checks if the ray intersects the plane containing the triangle.
-     * If an intersection is found, it further checks whether the intersection point
-     * lies inside the triangle using the inside-outside test based on cross products
-     * and dot products with the ray's direction.
+     * This method checks if the ray intersects the plane containing the triangle and
+     * verifies whether the intersection point lies inside the triangle.
      *
      * @param ray the ray to intersect with the triangle
      * @return a list containing the intersection point if it lies within the triangle;

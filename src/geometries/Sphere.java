@@ -17,7 +17,9 @@ import static primitives.Util.alignZero;
  */
 public class Sphere extends RadialGeometry implements Intersectable {
 
-    /** The center point of the sphere. */
+    /**
+     * The center point of the sphere.
+     */
     protected final Point center;
 
     /**
@@ -50,7 +52,7 @@ public class Sphere extends RadialGeometry implements Intersectable {
      * The method calculates the distance from the ray to the center of the sphere,
      * and determines if and where the ray intersects the sphere.
      *
-     * @param ray the ray to intersect with the sphere
+     * @param ray the {@link Ray} to intersect with the sphere
      * @return a list of intersection points, or {@code null} if no intersections exist
      */
     @Override

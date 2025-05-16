@@ -1,13 +1,13 @@
 package primitives;
 
 /**
- * The Vector class represents a vector in a 3D space.
+ * The {@link Vector} class represents a vector in a 3D space.
  * It provides methods to perform various vector operations such as addition, scaling, dot product, and cross product.
  */
 public final class Vector extends Point {
 
     /**
-     * Constructs a Vector with the specified x, y, and z coordinates.
+     * Constructs a {@link Vector} with the specified x, y, and z coordinates.
      * @param x the x-coordinate
      * @param y the y-coordinate
      * @param z the z-coordinate
@@ -19,7 +19,7 @@ public final class Vector extends Point {
     }
 
     /**
-     * Constructs a Vector with the specified coordinates.
+     * Constructs a {@link Vector} with the specified coordinates.
      * @param xyz the coordinates of the vector
      * @throws IllegalArgumentException if the vector is a zero vector
      */
@@ -97,11 +97,20 @@ public final class Vector extends Point {
         return new Vector(this.xyz.scale(1.0 / this.length()));
     }
 
+    /**
+     * Returns a string representation of this vector.
+     * @return a string representation of the vector
+     */
     @Override
     public String toString() {
         return "Vector{" + "coordinates=" + xyz + '}';
     }
 
+    /**
+     * Compares this vector to the specified object for equality.
+     * @param obj the object to compare with
+     * @return {@code true} if the objects are equal, {@code false} otherwise
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

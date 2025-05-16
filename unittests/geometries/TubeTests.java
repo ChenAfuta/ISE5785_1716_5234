@@ -11,13 +11,18 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the Tube class.
+ * Unit tests for the {@link Tube} class.
+ * <p>
+ * This class tests the functionality of the {@code Tube} class, including its methods
+ * for calculating normals and finding intersections.
  */
 class TubeTests {
 
     /**
-     * Test the getNormal method of Tube.
-     * The normal at a point on the surface of the tube should be perpendicular to the axis.
+     * Test method for {@link Tube#getNormal(Point)}.
+     * <p>
+     * Verifies that the normal vector at a point on the surface of the tube is
+     * perpendicular to the tube's axis and has unit length.
      */
     @Test
     void getNormal() {
@@ -33,6 +38,14 @@ class TubeTests {
         assertEquals(1, tube.getNormal(p).length(), "The length of the normal vector should be 1");
     }
 
-
-
+    /**
+     * Test method for {@link Tube#findIntersections(Ray)}.
+     * <p>
+     * This test will check various cases of ray intersections with the tube.
+     * Currently, the implementation is incomplete.
+     */
+    @Test
+    void findIntersections() {
+        // Test cases to be implemented
+    }
 }

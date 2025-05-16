@@ -1,4 +1,3 @@
-
 package geometries;
 
 import geometries.Cylinder;
@@ -12,13 +11,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the Cylinder class.
+ * Unit tests for the {@link Cylinder} class.
  */
 class CylinderTests {
 
     /**
-     * Test for getting the height of the cylinder.
-     * Verifies that the height returned by the `getHeight` method matches the expected value.
+     * Test for the {@link Cylinder#getHeight()} method.
+     * Verifies that the height returned matches the expected value.
      */
     @Test
     void getHeight() {
@@ -29,7 +28,7 @@ class CylinderTests {
     }
 
     /**
-     * Test for getting the normal vector of the cylinder at a given point.
+     * Test for the {@link Cylinder#getNormal(Point)} method.
      * Verifies the correctness of the normal vector on the surface, bottom base, and top base.
      */
     @Test
@@ -52,7 +51,4 @@ class CylinderTests {
         Vector expectedNormal3 = new Vector(0, 0, 1); // Expected normal vector
         assertEquals(expectedNormal3, cylinder.getNormal(p3), "The normal vector on the top base is incorrect");
     }
-
-
-
 }
