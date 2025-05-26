@@ -9,20 +9,29 @@ import lighting.AmbientLight;
 import primitives.*;
 import scene.Scene;
 
-
-
+/**
+ * Unit tests for rendering scenes using the {@link renderer.Camera} and {@link renderer.ImageWriter}.
+ * This class tests the rendering of basic 3D models into images.
+ */
 public class RenderTests {
-   /** Scene of the tests */
-   private final Scene  scene  = new Scene("Test scene");
-   /** Camera builder of the tests */
+
+   /** 
+    * The {@link scene.Scene} instance used for the rendering tests.
+    */
+   private final Scene scene = new Scene("Test scene");
+
+   /** 
+    * The {@link renderer.Camera.Builder} instance used to configure and build the camera for the tests.
+    */
    private final Camera.Builder camera = Camera.getBuilder()
       .setRayTracer(new SimpleRayTracer(scene))
-      .setLocation(Point.ZERO).setDirection(new Point(0, 0, -1), new Vector(0,1,0))
+      .setLocation(Point.ZERO).setDirection(new Point(0, 0, -1), Vector.AXIS_Y)
       .setVpDistance(100)
       .setVpSize(500, 500);
 
-   /** Produce a scene with basic 3D model and render it into a png image with a
-    * grid */
+   /**
+    * Produces a scene with a basic 3D model and renders it into a PNG image with a grid.
+    */
    @Test
    public void renderTwoColorTest() {
       scene.geometries.add(new Sphere(50d, new Point(0, 0, -100)),
@@ -42,6 +51,35 @@ public class RenderTests {
          .renderImage()
          .printGrid(100, new Color(YELLOW))
          .writeToImage();
+   }
+   // For stage 6 - please disregard in stage 5
+   /**
+    * Produce a scene with basic 3D model - including individual lights of the
+    * bodies and render it into a png image with a grid
+    */
+   @Test
+   void renderMultiColorTest() {
+      Scene scene = new Scene("Multi color").setAmbientLight(new AmbientLight(new Color(51, 51, 51)));
+      scene.geometries //
+              .add(// center
+                      new Sphere(new Point(0, 0, -100), 50),
+                      // up left
+                      new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100)) //
+                              .setEmission(new Color(GREEN)),
+                      // down left
+                      new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100)) //
+                              .setEmission(new Color(RED)),
+                      // down right
+                      new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100)) //
+                              .setEmission(new Color(BLUE)));
+
+      camera //
+              .setRayTracer(scene, RayTracerType.SIMPLE) //
+              .setResolution(1000, 1000) //
+              .build() //
+              .renderImage() //
+              .printGrid(100, new Color(WHITE)) //
+              .writeToImage("color render test");
    }
 
 //   /** Test for XML based scene - for bonus */

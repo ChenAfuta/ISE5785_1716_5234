@@ -7,6 +7,9 @@ import primitives.Vector;
 
 import java.util.List;
 
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
+
 /**
  * The {@code Plane} class represents an infinite plane in 3D space.
  * <p>
@@ -75,38 +78,28 @@ public class Plane extends Geometry implements Intersectable {
         return this.normal;
     }
 
-    /**
-     * Finds the intersection point of the plane with a given {@link Ray}.
-     * <p>
-     * The method checks whether the ray is parallel to the plane, starts on the plane,
-     * or intersects it at a point in the ray's direction.
-     *
-     * @param ray the ray to intersect with the plane
-     * @return a list containing the intersection point if it exists; {@code null} otherwise
-     */
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        double nv = Util.alignZero(normal.dotProduct(ray.getDirection()));
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        // Point that represents the ray's head
+        final Point rayPoint = ray.getPoint(0);
+        // Vector that represents the ray's axis
+        final Vector rayVector = ray.getVector();
 
-        // If the ray is parallel to the plane, there's no intersection
-        if (Util.isZero(nv))
+        // in case the ray's head is the reference point in the plane, there are no intersections
+        if(rayPoint.equals(head))
             return null;
 
-        // If the ray starts exactly at the reference point of the plane
-        if (ray.getPoint().equals(point))
+        // numerator for the formula
+        final double numerator = normal.dotProduct(head.subtract(rayPoint));
+        // denominator for the formula
+        final double denominator = normal.dotProduct(rayVector);
+        // in case ray is parallel to the plane
+        if (isZero(denominator))
             return null;
 
-        Vector headToQ = point.subtract(ray.getPoint());
-        double nHeadToQ = Util.alignZero(normal.dotProduct(headToQ));
+        final double t = alignZero(numerator / denominator);
 
-        // If the ray starts somewhere on the plane (but not at reference point)
-        if (Util.isZero(nHeadToQ))
-            return null;
-
-        double t = Util.alignZero(nHeadToQ / nv);
-        if (t < 0)
-            return null;
-
-        return List.of(ray.getPoint(t));
+        // if (0 ≥ t) there are no intersections
+        return t > 0 ? List.of(new Intersection(this, ray.getPoint(t))) : null;
     }
 }

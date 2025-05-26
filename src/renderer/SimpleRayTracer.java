@@ -1,6 +1,8 @@
 package renderer;
 
+import geometries.Intersectable;
 import primitives.Color;
+import primitives.Double3;
 import primitives.Point;
 import primitives.Ray;
 import scene.Scene;
@@ -20,24 +22,33 @@ public class SimpleRayTracer extends RayTracerBase{
         super(scene);
     }
 
-    @Override
-    public Color traceRay(Ray ray) {
-        List<Point> intersections = scene.geometries.findIntersections(ray);
+    /**
+     * Calculates the total color at the intersection point, combining ambient light,
+     * emission, and local lighting effects (diffuse + specular).
+     * @param intersection the intersection for calculating the color
+     * @param ray the viewing ray that hit the geometry
+     * @return the resulting color at the intersection point
+     */
+    private Color calcColor(Intersectable.Intersection intersection, Ray ray) {
+        if (!preprocessIntersection(intersection, ray.getDirection()))
+            return Color.BLACK;
 
-        if(intersections == null|| intersections.isEmpty())
-            return scene.background;
+        Color ambientLightIntensity = scene.ambientLight.getIntensity();
+        Double3 attenuationCoefficient = intersection.geometry.getMaterial().kA;
 
-        Point closest = ray.findClosestPoint(intersections);
-        return calcColor(closest);
+        Color intensity = ambientLightIntensity.scale(attenuationCoefficient);
+        return intensity.add(calcColorLocalEffects(intersection));
     }
 
-    /**
-     * return the color of a given point
-     * @param point
-     * @return the color of the point
-     */
+    @Override
+    public Color traceRay(Ray ray) {
+        List<Intersectable.Intersection> intersections = scene.geometries.calculateIntersections(ray);
 
-    private Color calcColor(Point point){
-        return scene.ambientLight.getIntensity();
+        if (intersections == null)
+            return scene.background;
+        else {
+            Intersectable.Intersection closestPoint = ray.findClosestIntersection(intersections);
+            return calcColor(closestPoint, ray);
+        }
     }
 }

@@ -1,5 +1,11 @@
 package primitives;
+
+import geometries.Intersectable;
+
 import java.util.List;
+
+import static primitives.Util.isZero;
+import geometries.Intersectable.Intersection;
 
 /**
  * The {@code Ray} class represents a ray in a 3D space.
@@ -11,7 +17,7 @@ public final class Ray {
     /**
      * The starting point of the ray.
      */
-    private final Point point;
+    private final Point head;
 
     /**
      * The direction vector of the ray, normalized.
@@ -31,7 +37,7 @@ public final class Ray {
         if (dir.equals(Vector.ZERO)) {
             throw new IllegalArgumentException("Direction vector cannot be zero");
         }
-        this.point = p0;
+        this.head = p0;
         this.direction = dir.normalize();
     }
 
@@ -40,8 +46,8 @@ public final class Ray {
      *
      * @return the ray's origin point
      */
-    public Point getPoint() {
-        return point;
+    public Point getHead() {
+        return head;
     }
 
     /**
@@ -62,7 +68,9 @@ public final class Ray {
      * @return a {@link Point} located {@code t} units along the ray's direction
      */
     public Point getPoint(double t) {
-        return point.add(direction.scale(t));
+        if (isZero(t))
+            return head;
+        return head.add(direction.scale(t));
     }
 
     /**
@@ -72,7 +80,7 @@ public final class Ray {
      */
     @Override
     public String toString() {
-        return "" + point + "" + direction;
+        return "" + head + "" + direction;
     }
 
     /**
@@ -87,9 +95,45 @@ public final class Ray {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof Ray ray)) return false;
-        return point.equals(ray.point) && direction.equals(ray.direction);
+        return head.equals(ray.head) && direction.equals(ray.direction);
     }
 
+    /**
+     * Calling to a function that find the closest intersection to the head of the ray.
+     * When this method calls that function - list of intersections is made, the geometry is null.
+     * @param points list of points for check the closest to the head of the ray.
+     * @return the closest point to the head of the ray from the list of points, or null if none exist.
+     */
+    public Point findClosestPoint(List<Point> points) {
+        return points == null || points.isEmpty() ? null
+                : findClosestIntersection(
+                points.stream().map(p -> new Intersectable.Intersection(null, p)).toList()).point;
+    }
+
+    /**
+     * Calculating which of the intersections in a given list is the closest to the head of the ray.
+     * If the list is null or empty, returns null.
+     * @param intersections list of intersections.
+     * @return the closest intersection to the head of the ray from the list of intersections, or null if none exist.
+     */
+    public Intersectable.Intersection findClosestIntersection(List<Intersectable.Intersection> intersections) {
+        // if the list is not initialized, there is no intersection that is the closest - return null.
+        if (intersections == null)
+            return null;
+
+        // initialized to null - if the list is empty will stay null.
+        Intersectable.Intersection closestIntersection = null;
+
+        for(Intersectable.Intersection intersection : intersections) {
+            // if this is the first intersection - change the intersection,
+            // or it's closer than the closest intersection for now, so this is the new closest intersection.
+            if (closestIntersection == null ||
+                    p.distanceSquared(intersection.point) < p.distanceSquared(closestIntersection.point))
+                closestIntersection = intersection;
+        }
+
+        return closestIntersection;
+    }
     /**
      * Finds the closest point to the ray's origin from a list of points.
      *
@@ -97,13 +141,19 @@ public final class Ray {
      * @return the closest point to the ray's origin, or {@code null} if the list is empty or {@code null}
      */
     public Point findClosestPoint(List<Point> points) {
-        if (points == null || points.isEmpty())
+        if (points == null)
             return null;
 
         Point closest = points.get(0);
-        for (int i = 1; i < points.size(); i += 1)
-            if (points.get(i).distanceSquared(point) < closest.distanceSquared(point))
+        double maxDistance = closest.distanceSquared(head);
+
+        for (int i = 1; i < points.size(); i += 1) {
+            double distance = points.get(i).distanceSquared(head);
+            if (distance < maxDistance) {
                 closest = points.get(i);
+                maxDistance = distance;
+            }
+        }
 
         return closest;
     }

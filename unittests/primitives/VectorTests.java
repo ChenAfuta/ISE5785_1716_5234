@@ -12,6 +12,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#add(Vector)}.
+     * <p>
      * Verifies that the addition of two vectors produces the correct result.
      */
     @Test
@@ -24,6 +25,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#scale(double)}.
+     * <p>
      * Verifies that scaling a vector by a scalar produces the correct result.
      */
     @Test
@@ -35,6 +37,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#dotProduct(Vector)}.
+     * <p>
      * Verifies that the dot product of two vectors is calculated correctly.
      */
     @Test
@@ -47,6 +50,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#crossProduct(Vector)}.
+     * <p>
      * Verifies that the cross product of two vectors is calculated correctly.
      */
     @Test
@@ -59,6 +63,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#lengthSquared()}.
+     * <p>
      * Verifies that the squared length of a vector is calculated correctly.
      */
     @Test
@@ -70,6 +75,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#length()}.
+     * <p>
      * Verifies that the length of a vector is calculated correctly.
      */
     @Test
@@ -81,6 +87,7 @@ class VectorTests {
 
     /**
      * Test method for {@link primitives.Vector#normalize()}.
+     * <p>
      * Verifies that a vector is normalized correctly.
      */
     @Test

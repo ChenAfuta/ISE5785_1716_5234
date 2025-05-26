@@ -6,18 +6,20 @@ import geometries.Polygon;
 import org.junit.jupiter.api.Test;
 
 /**
- * Testing Polygons.
- * @author Dan
+ * Unit tests for the {@link geometries.Polygon} class.
+ * This class tests the construction and normal calculation of polygons.
  */
-class PolygonTests{
+class PolygonTests {
 
-    /**
-     * Delta value for accuracy when comparing the numbers of type 'double' in
-     * assertEquals
-     */
+    /** Delta value for accuracy when comparing double values in assertions. */
     private static final double DELTA = 0.000001;
 
-    /** Test method for {@link Polygon#Polygon(primitives.Point...)}. */
+    /**
+     * Test method for {@link Polygon#Polygon(primitives.Point...)}.
+     * <p>
+     * Verifies the correctness of polygon construction under various conditions,
+     * including valid and invalid configurations.
+     */
     @Test
     void testConstructor() {
         // ============ Equivalence Partitions Tests ==============     2
@@ -64,7 +66,11 @@ class PolygonTests{
                 "Constructed a polygon with co-located points");
     }
 
-    /** Test method for {@link Polygon#getNormal(primitives.Point)}. */
+    /**
+     * Test method for {@link Polygon#getNormal(primitives.Point)}.
+     * <p>
+     * Verifies that the normal vector of a polygon is calculated correctly.
+     */
     @Test
     void testGetNormal() {
         // ============ Equivalence Partitions Tests ==============

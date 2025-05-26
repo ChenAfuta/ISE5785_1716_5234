@@ -10,7 +10,9 @@ import primitives.Color;
  */
 class ImageWriterTest {
 
-    /** The image writer used for creating the test image. */
+    /** 
+     * The {@link renderer.ImageWriter} instance used for creating the test image.
+     */
     ImageWriter writer = new ImageWriter("test1", 800, 500);
 
     /**

@@ -58,10 +58,10 @@ public class Sphere extends RadialGeometry implements Intersectable {
     @Override
     public List<Point> findIntersections(Ray ray) {
         // Special case: ray starts at the center of the sphere
-        if (center.equals(ray.getPoint()))
+        if (center.equals(ray.getHead()))
             return List.of(ray.getPoint(radius));
 
-        Vector headToCenter = center.subtract(ray.getPoint());
+        Vector headToCenter = center.subtract(ray.getHead());
 
         // tm = projection of center-to-ray-origin vector onto ray direction
         double tm = alignZero(ray.getDirection().dotProduct(headToCenter));

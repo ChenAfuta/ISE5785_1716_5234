@@ -42,7 +42,7 @@ public class Tube extends RadialGeometry {
      * @return the normalized vector orthogonal to the tube at the given point
      */
     public Vector getNormal(Point point) {
-        Vector fromAxisOrigin = point.subtract(axis.getPoint());
+        Vector fromAxisOrigin = point.subtract(axis.getHead());
 
         // Project the vector onto the axis direction to find the closest point on the axis
         double t = fromAxisOrigin.dotProduct(axis.getDirection());
@@ -63,7 +63,7 @@ public class Tube extends RadialGeometry {
      * @return a list of intersection points, or {@code null} if unimplemented
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        return null; // Not implemented
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        throw new UnsupportedOperationException("This method is not implemented yet");
     }
 }

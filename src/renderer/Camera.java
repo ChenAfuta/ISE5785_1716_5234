@@ -122,6 +122,11 @@ public class Camera implements Cloneable{
         Color color = rayTracer.traceRay(ray);
         imageWriter.writePixel(column,row, color);
     }
+    public void setResolution(int nX, int nY)
+    {
+
+
+    }
 
     /**
      * the builder of the camera
@@ -164,6 +169,32 @@ public class Camera implements Cloneable{
         public Builder setDirection(Point Pto, Vector Vup ){
             camera.Vup = Vup;
             this.Pto = Pto;
+            return this;
+        }
+        /**
+         * Sets the camera direction toward a given target point, assuming the Y-axis as the default up direction.
+         * Calculates Vto from the camera's position to the target, and adjusts Vup to be orthogonal.
+         *
+         * @param Pto the target point the camera should look at (see {@link primitives.Point})
+         * @return the updated {@link Builder} instance
+         * @throws IllegalArgumentException if the target point is directly above or below the camera
+         * @see primitives.Vector
+         */
+        public Builder setDirection(Point Pto) {
+            this.Pto = Pto;
+
+            Vector Vto = Pto.subtract(camera.p0).normalize();
+            Vector approxUp = new Vector(0, 1, 0);
+            Vector Vright = approxUp.crossProduct(Vto);
+
+            if (Vright.lengthSquared() == 0)
+                throw new IllegalArgumentException("Pto cannot be directly above or below the camera");
+
+            Vector Vup = Vright.crossProduct(Vto).normalize();
+
+            camera.Vto = Vto;
+            camera.Vup = Vup;
+
             return this;
         }
 

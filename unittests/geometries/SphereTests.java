@@ -4,6 +4,9 @@ import geometries.Sphere;
 import org.junit.jupiter.api.Test;
 import primitives.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
+
 import java.util.List;
 
 /**
@@ -18,44 +21,44 @@ class SphereTests {
     /** A vector in the Z-axis direction */
     private final Vector v001 = new Vector(0, 0, 1);
 
-    /**
-     * Test method for {@link geometries.Sphere#findIntersections(primitives.Ray)}.
-     * Covers several scenarios for ray-sphere intersection.
-     */
-    @Test
-    public void testFindIntersections() {
-        // Create a sphere with radius 1 and center at (1, 0, 0)
-        Sphere sphere = new Sphere(1d, p100);
+    @Override
+    protected List<Intersectable.Intersection> calculateIntersectionsHelper(Ray ray) {
+        // Point that represents the ray's head
+        final Point rayPoint = ray.getPoint(0);
 
-        // Expected intersection points for one of the test cases
-        final Point gp1 = new Point(0.0651530771650466, 0.355051025721682, 0);
-        final Point gp2 = new Point(1.53484692283495, 0.844948974278318, 0);
-        final var exp = List.of(gp1, gp2);
+        // in case the ray's head is the sphere's center, we calculate the one intersection directly
+        if(rayPoint.equals(center))
+            return List.of(new Intersectable.Intersection(this, ray.getPoint(radius)));
 
-        final Vector v310 = new Vector(3, 1, 0); // Vector that will cross the sphere
-        final Vector v110 = new Vector(1, 1, 0); // Vector that bypasses the sphere
-        final Point p01 = new Point(-1, 0, 0);   // Start point for rays
+        final Vector u = center.subtract(rayPoint);
+        final double tm = ray.getVector().dotProduct(u);
+        final double d = Math.sqrt(u.lengthSquared() - tm * tm);
+        // if (d ≥ r) there are no intersections
+        if( alignZero(d - radius) > 0)
+            return null;
 
-        // ============ Equivalence Partitions Tests ==============
+        final double th = Math.sqrt(radius * radius - d * d);
+        // in case the ray is tangent to the sphere, there are no intersections
+        if(isZero(th))
+            return null;
+        final double t1 = alignZero(tm - th);
+        final double t2 = alignZero(tm + th);
 
-        // TC01: Ray's line is outside the sphere - should return null
-        assertNull(sphere.findIntersections(new Ray(p01, v110)), "Ray's line out of sphere");
-
-        // TC02: Ray starts before and crosses the sphere - should return 2 points
-        final var result1 = sphere.findIntersections(new Ray(p01, v310));
-        assertNotNull(result1, "Expected non-empty list of intersection points");
-        assertEquals(2, result1.size(), "Wrong number of intersection points");
-        assertEquals(exp, result1, "Unexpected intersection points");
-
-        // TC03: Ray starts inside the sphere - should return 1 intersection point
-        Ray ray3 = new Ray(new Point(1, 0, 0), new Vector(1, 0, 0));
-        List<Point> result3 = sphere.findIntersections(ray3);
-        assertEquals(1, result3.size(), "Ray from inside sphere should intersect once");
-        assertEquals(new Point(2, 0, 0), result3.get(0), "Wrong intersection point");
-
-        // TC04: Ray starts after the sphere - should return null
-        Ray ray4 = new Ray(new Point(3, 0, 0), new Vector(1, 0, 0));
-        assertNull(sphere.findIntersections(ray4), "Ray starts after the sphere, should be no intersection");
- }
+        // 2 intersections
+        if(t1 > 0 && t2 > 0) {
+            Intersectable.Intersection intersection1 = new Intersectable.Intersection(this, ray.getPoint(t1));
+            Intersectable.Intersection intersection2 = new Intersectable.Intersection(this, ray.getPoint(t2));
+            return List.of(intersection1, intersection2);
+        }
+        // 1 intersection
+        else if(t1 > 0)
+            return List.of(new Intersectable.Intersection(this, ray.getPoint(t1)));
+            // 1 intersection
+        else if(t2 > 0)
+            return List.of(new Intersectable.Intersection(this, ray.getPoint(t2)));
+            // 0 intersections
+        else
+            return null;
+    }
 
 }

@@ -46,7 +46,7 @@ public class Cylinder extends Tube implements Intersectable {
     @Override
     public Vector getNormal(Point point) {
         Vector dir = axis.getDirection();
-        Point p0 = axis.getPoint();
+        Point p0 = axis.getHead();
 
         // Check if point is on the bottom base
         if (point.subtract(p0).dotProduct(dir) == 0) {
