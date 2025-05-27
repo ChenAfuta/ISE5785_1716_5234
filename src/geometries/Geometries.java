@@ -9,7 +9,7 @@ import primitives.*;
  * It implements the Composite design pattern, allowing to group several geometries
  * into a single composite object that can also be intersected by a ray.
  */
-public class Geometries implements Intersectable {
+public class Geometries extends Intersectable {
     private final List<Intersectable> geometries = new LinkedList<>();
 
     /**

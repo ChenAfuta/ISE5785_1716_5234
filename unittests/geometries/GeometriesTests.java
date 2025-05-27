@@ -30,10 +30,11 @@ public class GeometriesTests {
     @Test
     public void testNoIntersection() {
         Geometries geometries = new Geometries(
-                new Sphere(1, new Point(5, 5, 0)),
+                new Sphere(new Point(5, 5, 0), 1),
                 new Plane(new Point(0, 0, 5), new Vector(0, 0, 1)),
                 new Triangle(new Point(1, 1, 5), new Point(2, 5, 5), new Point(3, 1, 5))
         );
+
 
         // A ray pointing diagonally downward and sideways to avoid intersection
         Ray ray = new Ray(new Point(0, 0, 0), new Vector(-1, -1, -1));
@@ -49,7 +50,7 @@ public class GeometriesTests {
     @Test
     public void testOneIntersection() {
         Geometries geometries = new Geometries(
-                new Sphere(1, new Point(2, 0, 0)),
+                new Sphere( new Point(2, 0, 0),1),
                 new Plane(new Point(0, 0, 5), new Vector(0, 0, 1)),
                 new Triangle(new Point(1, 1, 5), new Point(2, 2, 5), new Point(1, 2, 6))  // Off-plane triangle
         );
@@ -66,7 +67,7 @@ public class GeometriesTests {
     @Test
     public void testSomeIntersections() {
         Geometries geometries = new Geometries(
-                new Sphere(1, new Point(0, 0, 1)),
+                new Sphere( new Point(0, 0, 1),1),
                 new Triangle(new Point(-1, -1, 2), new Point(1, -1, 2), new Point(0, 1, 2))
         );
         Ray ray = new Ray(new Point(0, 0, -1), new Vector(0, 0, 1));
@@ -82,7 +83,7 @@ public class GeometriesTests {
     @Test
     public void testAllIntersected() {
         Geometries geometries = new Geometries(
-                new Sphere(1, new Point(0, 0, 3)),
+                new Sphere( new Point(0, 0, 3),1),
                 new Plane(new Point(0, 0, 2), new Vector(0, 0, 1)),
                 new Triangle(new Point(-1, 1, 1), new Point(1, 1, 1), new Point(0, -1, 1))
         );

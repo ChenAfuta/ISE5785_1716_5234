@@ -42,7 +42,7 @@ public class Tube extends RadialGeometry {
      * @return the normalized vector orthogonal to the tube at the given point
      */
     public Vector getNormal(Point point) {
-        Vector fromAxisOrigin = point.subtract(axis.getHead());
+        Vector fromAxisOrigin = point.subtract(axis.getPoint(0));
 
         // Project the vector onto the axis direction to find the closest point on the axis
         double t = fromAxisOrigin.dotProduct(axis.getDirection());

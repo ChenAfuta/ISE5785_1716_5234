@@ -1,6 +1,7 @@
 package geometries;
 
 import primitives.Color;
+import primitives.Material;
 import primitives.Point;
 import primitives.Vector;
 
@@ -8,7 +9,7 @@ import primitives.Vector;
  * The Geometry class is an abstract base class for all geometric objects in a 3D space.
  * It defines a method to calculate the normal vector at a given point on the geometry.
  */
-public abstract class Geometry implements Intersectable {
+public abstract class Geometry extends Intersectable {
     /**
      * The shining color
      */

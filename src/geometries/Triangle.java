@@ -39,7 +39,7 @@ public class Triangle extends Polygon {
         // Point that represents the ray's head
         final Point rayPoint = ray.getPoint(0);
         // Vector that represents the ray's axis
-        final Vector rayVector = ray.getVector();
+        final Vector rayVector = ray.getDirection();
 
         // vector1, vector2, vector3 can't be the ZERO Vector because it happens only if rayPoint = P1/P2/P3,
         // which means the ray begins at the plane and there are no intersections with the plane at all,

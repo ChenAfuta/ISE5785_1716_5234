@@ -92,7 +92,7 @@ public class Polygon extends Geometry {
         // Point that represents the ray's head
         final Point rayPoint = ray.getPoint(0);
         // Vector that represents the ray's axis
-        final Vector rayVector = ray.getVector();
+        final Vector rayVector = ray.getDirection();
         // number that represents the size of vertices
         final int size_vertices = vertices.size();
 
