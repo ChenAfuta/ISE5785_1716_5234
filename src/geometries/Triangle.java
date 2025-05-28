@@ -37,28 +37,34 @@ public class Triangle extends Polygon {
      *         {@code null} if there is no intersection or the point is outside the triangle
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        List<Point> planeIntersection = plane.findIntersections(ray);
-        if (planeIntersection == null) // No intersection with the plane
+    protected List<GeoPoint> findGeoIntersectionsHelper(Ray ray) {
+        Point p0 = ray.getPoint(0);
+        Vector dir = ray.getDirection();
+
+        // if the ray starts at the center of the sphere
+        if (center.equals(p0))
+            return List.of(new GeoPoint(this, ray.getPoint(radius)));
+
+        Vector u = (center.subtract(p0));
+        double tm = dir.dotProduct(u);
+        double d = Util.alignZero(Math.sqrt(u.lengthSquared() - tm * tm));
+        if (d >= radius)
             return null;
 
-        // Vectors from ray origin to triangle vertices
-        Vector v1 = vertices.get(0).subtract(ray.getPoint());
-        Vector v2 = vertices.get(1).subtract(ray.getPoint());
-        Vector v3 = vertices.get(2).subtract(ray.getPoint());
+        double th = Math.sqrt(radius * radius - d * d);
+        double t1 = Util.alignZero(tm - th);
+        double t2 = Util.alignZero(tm + th);
 
-        // Normal vectors to triangle edges using cross product
-        Vector n1 = v1.crossProduct(v2).normalize();
-        Vector n2 = v2.crossProduct(v3).normalize();
-        Vector n3 = v3.crossProduct(v1).normalize();
+        // if the ray starts before the sphere
+        if (t1 > 0 && t2 > 0)
+            return List.of(new GeoPoint(this,ray.getPoint(t1)),new GeoPoint(this, ray.getPoint(t2)));
 
-        // Check if the intersection point is inside the triangle using sign of dot products
-        if (Util.compareSign(ray.getDirection().dotProduct(n1), ray.getDirection().dotProduct(n2)) &&
-                Util.compareSign(ray.getDirection().dotProduct(n2), ray.getDirection().dotProduct(n3)) &&
-                Util.compareSign(ray.getDirection().dotProduct(n3), ray.getDirection().dotProduct(n1))) {
-            return planeIntersection;
-        }
+        // if the ray starts inside the sphere
+        if (t1 > 0)
+            return List.of(new GeoPoint(this,ray.getPoint(t1)));
+        if (t2 > 0)
+            return List.of(new GeoPoint(this,ray.getPoint(t2)));
 
         return null;
-    }
+}
 }

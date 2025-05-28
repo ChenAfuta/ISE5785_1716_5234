@@ -1,6 +1,7 @@
 package renderer;
 
 import primitives.*;
+import scene.Scene;
 
 import java.util.MissingResourceException;
 
@@ -201,14 +202,20 @@ public class Camera implements Cloneable{
 
         /**
          * sets the ray tracer of the camera
-         * @param rayTracer
+         * @param scene
+         * @param type the type of ray tracer
          * @return the updated builder
          */
-        public Builder setRayTracer(RayTracerBase rayTracer){
-            camera.rayTracer = rayTracer;
+        public Builder setRayTracer(Scene scene, RayTracerType type){
+            if (type == RayTracerType.SIMPLE)
+                camera.rayTracer = new SimpleRayTracer(scene);
+            else
+                camera.rayTracer = null;
             return this;
         }
-
+        public Builder setResolution(int nx, int nY){
+            return this;
+        }
         /**
          * checks that all of camera's fields are well assigned
          * @throws MissingResourceException if a field is null or zero

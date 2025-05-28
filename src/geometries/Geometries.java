@@ -48,16 +48,16 @@ public class Geometries implements Intersectable {
      * @return a list of intersection points, or {@code null} if there are no intersections
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        List<Point> list = null;
-        for (Intersectable intersectable : geometries){
-            if (intersectable.findIntersections(ray) != null)
-                if (list == null)
-                    list = new LinkedList<Point>(intersectable.findIntersections(ray));
-                else
-                    list.addAll(intersectable.findIntersections(ray));
+    public List<Point> findGeoIntersectionsHelper(Ray ray) {
+        List<Point> intersections = null;
+        for (Intersectable geometry : geometries) {
+            List<Point> geometryIntersections = geometry.findIntersectionsHelper(ray);
+            if (geometryIntersections != null) {
+                if (intersections == null)
+                    intersections = new LinkedList<>();
+                intersections.addAll(geometryIntersections);
+            }
         }
-        return list;
-    }
+        return intersections;
 
 }

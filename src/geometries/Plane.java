@@ -85,28 +85,16 @@ public class Plane extends Geometry implements Intersectable {
      * @return a list containing the intersection point if it exists; {@code null} otherwise
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        double nv = Util.alignZero(normal.dotProduct(ray.getDirection()));
-
-        // If the ray is parallel to the plane, there's no intersection
-        if (Util.isZero(nv))
+    protected List<Point> findGeoIntersectionsHelper(Ray ray) {
+        Vector direction = ray.getDirection();
+        Point p0 = ray.getPoint(0);
+        // if the ray is parallel to the plane or the ray starts on the plane at the point q
+        if (Util.isZero(direction.dotProduct(normal)) || q.equals(p0))
             return null;
 
-        // If the ray starts exactly at the reference point of the plane
-        if (ray.getPoint().equals(point))
-            return null;
+        // calculate the intersection point
+        double t = normal.dotProduct(q.subtract(p0)) / normal.dotProduct(direction);
 
-        Vector headToQ = point.subtract(ray.getPoint());
-        double nHeadToQ = Util.alignZero(normal.dotProduct(headToQ));
-
-        // If the ray starts somewhere on the plane (but not at reference point)
-        if (Util.isZero(nHeadToQ))
-            return null;
-
-        double t = Util.alignZero(nHeadToQ / nv);
-        if (t < 0)
-            return null;
-
-        return List.of(ray.getPoint(t));
-    }
+        return Util.alignZero(t) <= 0 ? null : List.of(new Point(this, ray.getPoint(t)));
+}
 }

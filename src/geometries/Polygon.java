@@ -83,7 +83,37 @@ public class Polygon extends Geometry {
     public Vector getNormal(Point point) { return plane.getNormal(point); }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        return null ;
-    }
+    protected List<Point> findGeoIntersectionsHelper(Ray ray) {
+        // Initialize a list to hold the normals of the edges of the polygonal base
+        List<Vector> normals = new LinkedList<>();
+
+        // Get the starting point and direction of the ray
+        final Point startPoint = ray.getPoint(0);
+        final Vector dir = ray.getDirection();
+
+        // Calculate the normal vector for each edge of the polygonal base
+        Vector v1 = vertices.getFirst().subtract(startPoint);
+        for (Point p : vertices.subList(1, size)) {
+            Vector v2 = p.subtract(startPoint);
+            normals.add(v1.crossProduct(v2).normalize());
+            v1 = v2;
+        }
+        // Add the normal for the edge connecting the last vertex to the first vertex
+        normals.add(vertices.getLast().subtract(startPoint).crossProduct(vertices.getFirst().subtract(startPoint)).normalize());
+
+        // Determine if the ray direction is consistently on one side of all the polygon's edges
+        boolean allPositive = dir.dotProduct(normals.getFirst()) > 0;
+        for (Vector normal : normals) {
+            double s = dir.dotProduct(normal);
+            // If the dot product is zero or if it changes sign, the ray does not intersect the polygon's base
+            if (Util.isZero(s) || (Util.alignZero(s) > 0 != allPositive)) {
+                return null;
+            }
+        }
+
+        // Find and return the intersection points of the ray with the plane
+        List<Point> points = plane.findIntersections(ray);
+
+        return points == null ? null : List.of(new Point(this, points.getFirst()));
+}
 }
