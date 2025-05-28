@@ -5,19 +5,51 @@ import scene.Scene;
 
 import java.util.MissingResourceException;
 
-/**
- * represents the camera
- */
-public class Camera implements Cloneable{
-    private Point p0;
-    private Vector Vto;
-    private Vector Vup;
-    private Vector Vright;
-    private double width = 0.0;
-    private double height = 0.0;
-    private double distance = 0.0;
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
 
+/**
+ * Camera class represents a camera in 3D space.
+ * @author Yair Ziv and Amitay Yosh'i.
+ */
+public class Camera implements Cloneable {
+    /**
+     * Point that represents the location of the camera
+     */
+    private Point p0;
+    /**
+     * Vector that represents the direction the camera is pointing
+     */
+    private Vector vTo;
+    /**
+     * Vector that represents the direction up from the camera
+     */
+    private Vector vUp;
+    /**
+     * Vector that represents the direction right from the camera
+     */
+    private Vector vRight;
+
+    /**
+     * The distance between camera and view plane
+     */
+    private double distance = 0;
+    /**
+     * The width of the view plane
+     */
+    private double width = 0;
+    /**
+     * The height of the view plane
+     */
+    private double height = 0;
+
+    /**
+     * The image writer used to write the final rendered image to a file.
+     */
     private ImageWriter imageWriter;
+    /**
+     * The ray tracer calculates the color of each pixel by tracing rays through the scene.
+     */
     private RayTracerBase rayTracer;
     /**
      * The number of pixels across
@@ -28,88 +60,79 @@ public class Camera implements Cloneable{
      */
     private int nY = 1;
 
-    public Point getP0() {
-        return p0;
-    }
-
-    public Vector getVto() {
-        return Vto;
-    }
-
-    public Vector getVup() {
-        return Vup;
-    }
-
-    public Vector getVright() {
-        return Vright;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public double getDistance() {
-        return distance;
-    }
-    private Point center;
-
-    private Camera() {
-    }
+    /**
+     * Camera empty constructor
+     */
+    private Camera() {}
 
     /**
-     * returns the builder of the camera
-     * @return the builder
+     * Builder getter
+     *
+     * @return the camera builder
      */
-    public static Builder getBuilder(){
+    public static Builder getBuilder() {
         return new Builder();
     }
 
     /**
-     * construct a ray that goes through center of a given pixel
-     * @param nX,nY the resolution of the view plane
-     * @param j,i the pixel on the view plane
-     * @return the ray that goes through the center of the pixel i,j
+     * Calculates the ray from camera through a specific pixel with a given resolution
+     * @param nX the number of columns of pixels.
+     * @param nY the number of rows of pixels.
+     * @param j the pixel's column number
+     * @param i the pixel's row number.
+     * @return the ray from camera to the middle of the pixel
      */
-    public Ray constructRay(int nX, int nY, int j, int i){
-        double y = -(i - (nY - 1.0) / 2.0) * (height / nY);
-        double x = (j - (nX - 1.0) / 2.0) * (width / nX);
-        //Pij - center of pixel i,j
-        Point Pij;
-        if (!Util.isZero(x) && !Util.isZero(y))
-            Pij = center.add(Vright.scale(x).add(Vup.scale(y)));
-        else if (!Util.isZero(x))
-            Pij = center.add(Vright.scale(x));
-        else if (!Util.isZero(y))
-            Pij = center.add(Vup.scale(y));
-        else
-            Pij = center;
+    public Ray constructRay(int nX, int nY, int j, int i) {
+        // Calculate the center point of the view plane
+        Point pC = p0.add(vTo.scale(distance));
 
-        return new Ray(p0,Pij.subtract(p0));
+        // Calculate the size of each pixel (height and width)
+        double rY = height / nY;
+        double rX = width / nX;
+
+        // Calculate the vertical and horizontal offset from the center to pixel (i, j)
+        // Minus because y starts at the top of the matrix and continues opposite the vUp vector
+        double yI = -(i - (nY - 1) / 2d) * rY;
+        double xJ = (j - (nX - 1) / 2d) * rX;
+
+        // Start at the center of the view plane
+        Point pIJ = pC;
+        // If xJ is zero than no need to move on the horizontal axis
+        if (!isZero(xJ))
+            pIJ = pIJ.add(vRight.scale(xJ));
+        // If yI is zero than no need to move on the vertical axis
+        if (!isZero(yI))
+            pIJ = pIJ.add(vUp.scale(yI));
+
+        // Return the ray that starts at camera and goes through the center of the pixel
+        return new Ray(p0, pIJ.subtract(p0));
     }
+
     /**
-     * cast ray for each pixel
+     * The method will go through all the pixels according to the resolution,
+     * and perform ray tracing to color all the pixels of the image.
+     * @return A camera
      */
-    public Camera renderImage(){
-        for (int i = 0; i < imageWriter.getNy(); i += 1)
-            for (int j = 0; j < imageWriter.getNx(); j += 1)
-                castRay(imageWriter.getNx(),imageWriter.getNy(),j, i);
+    public Camera renderImage() {
+        for(int i=0; i < nX; i++)
+            for(int j=0; j < nY; j++)
+                castRay(i,j);
         return this;
     }
 
     /**
-     * prints a grid in a given color and a given interval on the image
-     * @param interval
-     * @param color
+     * This method prints a grid on an image.
+     * @param interval the number of pixels in the width/height of the grid square
+     * @param color the color of the grid
+     * @return A camera
      */
-    public Camera printGrid(int interval, Color color){
-        for (int i = 0; i < imageWriter.getNy(); i += 1)
-            for (int j = 0; j < imageWriter.getNx(); j += 1)
-                if(i % interval == 0 || j % interval == 0)
-                    imageWriter.writePixel(j,i,color);
+    public Camera printGrid(int interval, Color color) {
+        for(int i=0; i < nX; i+=interval)
+            for(int j=0; j < nY; j++)
+                imageWriter.writePixel(j, i, color);
+        for(int i=0; i < nX; i++)
+            for(int j=0; j < nY; j+=interval)
+                imageWriter.writePixel(j, i, color);
         return this;
     }
 
@@ -125,116 +148,179 @@ public class Camera implements Cloneable{
     }
 
     /**
-     * construct a ray to a pixel and color the pixel in the image
-     * @param nX,nY the resolution
-     * @param column,row the pixel's indexes
+     * This method colors a pixel.
+     * @param i the pixel's row number
+     * @param j the pixel's column number
      */
-    private void castRay(int nX,int nY, int column, int row){
-        Ray ray = constructRay(nX, nY, column, row);
+    private void castRay(int i,  int j) {
+        Ray ray = constructRay(nX, nY, j, i);
         Color color = rayTracer.traceRay(ray);
-        imageWriter.writePixel(column,row, color);
+        this.imageWriter.writePixel(j, i, color);
     }
 
     /**
-     * the builder of the camera
+     * Class for building the camera
      */
-    public static class Builder{
+    public static class Builder {
+        /**
+         * Camera object
+         */
         private final Camera camera = new Camera();
-        private Point Pto = null;
 
         /**
-         * sets the location of the camera
-         * @param p0 the location
-         * @return the updated builder
+         * Set the location of the camera
+         * @param p0 the location of the camera
+         * @return A camera
          */
-        public Builder setLocation(Point p0){
+        public Builder setLocation(Point p0) {
             camera.p0 = p0;
             return this;
         }
 
         /**
-         * sets the vectors from the camera (to, up)
-         * @param Vto the vector to the view
-         * @param Vup the vector up
-         * @throws IllegalArgumentException if Vto and Vup aren't orthogonal
-         * @return the updated builder
+         * Ensures that vector up orthogonal to vector to, then initialize them.
+         * @param vTo the direction the camera is pointing
+         * @param vUp the direction up from the camera
+         * @return A camera
+         * @throws IllegalArgumentException if vector up isn't orthogonal to vector to
          */
-        public Builder setDirection(Vector Vto, Vector Vup){
-            if (!Util.isZero(Vto.dotProduct(Vup)))
-                throw new IllegalArgumentException("Vto and Vup must be orthogonal");
-            camera.Vto = Vto.normalize();
-            camera.Vup = Vup.normalize();
+        public Builder setDirection(Vector vTo, Vector vUp) {
+            if (!isZero(vTo.dotProduct(vUp)))
+                throw new IllegalArgumentException("vTo isn't orthogonal to vUp");
+
+            camera.vTo = vTo.normalize();
+            camera.vUp = vUp.normalize();
             return this;
         }
 
         /**
-         * sets the vectors from the camera towards a given point
-         * @param Pto the direction point
-         * @param Vup the general up direction (of view plane)
-         * @return the updated builder
+         * Calculating the vector to, vector right, and the "exact" vector up
+         * @param targetPoint The camera's target point (what point the photographer is aiming at)
+         * @param vUp the direction up from the camera (Not necessarily the "exact" vector)
+         * @return A camera
          */
-        public Builder setDirection(Point Pto, Vector Vup ){
-            camera.Vup = Vup;
-            this.Pto = Pto;
-            return this;
-        }
-        /**
-         * Sets the camera direction toward a given target point, assuming the Y-axis as the default up direction.
-         * Calculates Vto from the camera's position to the target, and adjusts Vup to be orthogonal.
-         *
-         * @param Pto the target point the camera should look at (see {@link primitives.Point})
-         * @return the updated {@link Builder} instance
-         * @throws IllegalArgumentException if the target point is directly above or below the camera
-         * @see primitives.Vector
-         */
-        public Builder setDirection(Point Pto) {
-            this.Pto = Pto;
+        public Builder setDirection(Point targetPoint, Vector vUp) {
+            camera.vTo = targetPoint.subtract(camera.p0);
+            camera.vRight = camera.vTo.crossProduct(vUp);
+            camera.vUp = camera.vRight.crossProduct(camera.vTo);
 
-            Vector Vto = Pto.subtract(camera.p0).normalize();
-            Vector approxUp = new Vector(0, 1, 0);
-            Vector Vright = approxUp.crossProduct(Vto);
-
-            if (Vright.lengthSquared() == 0)
-                throw new IllegalArgumentException("Pto cannot be directly above or below the camera");
-
-            Vector Vup = Vright.crossProduct(Vto).normalize();
-
-            camera.Vto = Vto;
-            camera.Vup = Vup;
-
+            camera.vTo = camera.vTo.normalize();
+            camera.vRight = camera.vRight.normalize();
+            camera.vUp = camera.vUp.normalize();
             return this;
         }
 
         /**
-         * set the width and the height of the view plane
-         * @param width
-         * @param height
-         * @return the updated builder
+         * In case the target point is exactly "above" the camera (the camera direction will be with the Y axis),
+         * an exception should be thrown because the cross product result will be the zero vector.
+         * @param targetPoint the camera's target point (what point the photographer is aiming at)
+         * @return A camera
          */
-        public Builder setVpSize(double width ,double height){
+        public Builder setDirection(Point targetPoint) {
+            return setDirection(targetPoint, Vector.AXIS_Y);
+        }
+
+        /**
+         * Set the size of the view plane.
+         * @param width the width of the view plane
+         * @param height the height of the view plane
+         * @return A camera
+         */
+        public Builder setVpSize(double width, double height) {
+            if (alignZero(width) <= 0 || alignZero(height) <= 0)
+                throw new IllegalArgumentException("width and height must be positive");
+
             camera.width = width;
             camera.height = height;
             return this;
         }
 
         /**
-         * set the distance from the camera to the view plane
-         * @param distance
-         * @return the updated builder
+         * Set the distance between camera and view plane.
+         * @param distance the distance between camera and view plane
+         * @return A camera
          */
-        public Builder setVpDistance(double distance){
+        public Builder setVpDistance(double distance) {
+            if (alignZero(distance) <= 0)
+                throw new IllegalArgumentException("distance must be positive");
+
             camera.distance = distance;
             return this;
         }
 
         /**
-         * sets the image writer of the camera
-         * @param imageWriter
-         * @return the updated builder
+         * Set the resolution of the view plane.
+         * @param nX number of pixels across (like width)
+         * @param nY number of pixels along the length (like height)
+         * @return A camera
          */
-        public Builder setImageWriter(ImageWriter imageWriter){
-            camera.imageWriter = imageWriter;
+        public Builder setResolution(int nX, int nY) {
+            camera.nX = nX;
+            camera.nY = nY;
             return this;
+        }
+
+        /**
+         * Checking the camera data and intelligizing vector Right
+         * @return a clone of intelligized camera
+         */
+        public Camera build() {
+            final String className = "Camera";
+            final String description = "Missing Render Data:";
+
+            if (camera.p0 == null)
+                throw new MissingResourceException(description, className, "p0");
+            if (camera.vTo == null)
+                throw new MissingResourceException(description, className, "vTo");
+            if (camera.vUp == null)
+                throw new MissingResourceException(description, className, "vUp");
+
+            if (camera.distance == 0)
+                throw new MissingResourceException(description, className, "distance");
+            if (camera.width == 0)
+                throw new MissingResourceException(description, className, "width");
+            if (camera.height == 0)
+                throw new MissingResourceException(description, className, "height");
+
+            if (camera.nX <= 0)
+                throw new MissingResourceException(description, className, "nX");
+            if (camera.nY <= 0)
+                throw new MissingResourceException(description, className, "nY");
+
+            camera.imageWriter = new ImageWriter(camera.nX, camera.nY);
+
+            if (camera.rayTracer == null)
+                camera.rayTracer = new SimpleRayTracer(null);
+
+            if (camera.vRight == null) {
+                camera.vRight = camera.vTo.crossProduct(camera.vUp);
+                camera.vRight = camera.vRight.normalize();
+            }
+
+            if (!isZero(camera.vTo.length() - 1) ||
+                    !isZero(camera.vUp.length() - 1) ||
+                    !isZero(camera.vRight.length() - 1))
+                throw new IllegalArgumentException("vTo, vUp, vRight must be normalized");
+
+            double x = camera.vTo.dotProduct(camera.vUp);
+            double y = camera.vTo.dotProduct(camera.vRight);
+            double z = camera.vUp.dotProduct(camera.vUp);
+
+            if (!isZero(camera.vTo.dotProduct(camera.vUp)) ||
+                    !isZero(camera.vTo.dotProduct(camera.vRight)) ||
+                    !isZero(camera.vUp.dotProduct(camera.vRight)))
+                throw new IllegalArgumentException("vTo, vUp, vRight must be orthogonal");
+
+            if (alignZero(camera.distance) <= 0)
+                throw new IllegalArgumentException("distance must be positive");
+            if (alignZero(camera.width) <= 0 || alignZero(camera.height) <= 0)
+                throw new IllegalArgumentException("width and height must be positive");
+
+            try {
+                return (Camera)camera.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         /**
@@ -250,69 +336,5 @@ public class Camera implements Cloneable{
                 camera.rayTracer = null;
             return this;
         }
-        /**
-         * Set the resolution of the view plane.
-         * @param nX number of pixels across (like width)
-         * @param nY number of pixels along the length (like height)
-         * @return A camera
-         */
-        public Builder setResolution(int nX, int nY) {
-            camera.nX = nX;
-            camera.nY = nY;
-            return this;
-        }
-
-        /**
-         * checks that all of camera's fields are well assigned
-         * @throws MissingResourceException if a field is null or zero
-         * @throws IllegalCallerException if the vectors aren't orthogonal or aren't normalized
-         * sets Vright and center
-         * @return a clone of the object with valid values
-         */
-        public Camera build(){
-            //const strings for exceptions throwing
-            final String MISSING_RENDERING_ARGUMENT = "Missing rendering argument";
-            final String CAMERA = "Camera";
-            final String MUST_BE_NORMALIZED = " must be normalized";
-            //if a field is null
-            if (camera.p0 == null)
-                throw new MissingResourceException(MISSING_RENDERING_ARGUMENT,CAMERA ,"p0");
-            if (Pto == null && camera.Vto == null)
-                throw new MissingResourceException(MISSING_RENDERING_ARGUMENT,CAMERA ,"Vto");
-            if (camera.Vup == null)
-                throw new MissingResourceException(MISSING_RENDERING_ARGUMENT,CAMERA ,"Vup");
-            if(camera.imageWriter == null)
-                throw new MissingResourceException(MISSING_RENDERING_ARGUMENT,CAMERA,"imageWriter");
-            if(camera.rayTracer == null)
-                throw new MissingResourceException(MISSING_RENDERING_ARGUMENT,CAMERA,"rayTracer");
-            // check if Vto and Vup are orthogonal
-            if (Pto == null && !Util.isZero(camera.Vto.dotProduct(camera.Vup)))
-                throw new IllegalArgumentException("Vto and Vup are not orthogonal");
-            // check if Vup and Vto are normalized
-            if (Pto == null && !Util.isZero(camera.Vto.lengthSquared()-1))
-                throw new IllegalArgumentException("Vto" + MUST_BE_NORMALIZED);
-            if (!Util.isZero(camera.Vup.lengthSquared()-1))
-                throw new IllegalArgumentException("Vup" + MUST_BE_NORMALIZED);
-            // setting Vright and center
-            if(Pto != null)
-                camera.Vto = Pto.subtract(camera.p0);
-            camera.Vright = camera.Vto.crossProduct(camera.Vup);
-
-            camera.center = camera.p0.add(camera.Vto.scale(camera.distance));
-            //if a field is zero
-            if(Util.isZero(camera.width))
-                throw new MissingResourceException(MISSING_RENDERING_ARGUMENT,CAMERA,"width");
-            if(Util.isZero(camera.height))
-                throw new MissingResourceException(MISSING_RENDERING_ARGUMENT,CAMERA,"height");
-            if(Util.isZero(camera.distance))
-                throw new MissingResourceException(MISSING_RENDERING_ARGUMENT,CAMERA,"distance");
-            // return clone of the object
-            try {
-                return (Camera) camera.clone();
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
     }
 }
