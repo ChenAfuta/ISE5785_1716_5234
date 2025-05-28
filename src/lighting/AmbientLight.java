@@ -1,38 +1,22 @@
 package lighting;
 
 import primitives.Color;
-import primitives.Double3;
+
 /**
- * represents the lightning at the scene
+ * AmbientLight class represents a uniform light that affects all objects equally,
+ * regardless of their position or other properties.
  */
-public class AmbientLight {
+public class AmbientLight extends Light{
     /**
-     * the intensity of the light
+     * A constant representing the absence of light - black.
      */
-    final private Color intensity;
+    public static final AmbientLight NONE = new AmbientLight(Color.BLACK);
 
     /**
-     * constructor that gets intensity and Double3 type attenuation coefficient
-     * @param intensity
-     * @param kA Double3 type attenuation coefficient
+     * Constructs an AmbientLight with the specified color intensity.
+     * @param intensity the color and intensity of the ambient light. (Ia)
      */
-    public AmbientLight(Color intensity, Double3 kA){
-        this.intensity = intensity.scale(kA);
+    public AmbientLight(Color intensity) {
+        super(intensity);
     }
-    /**
-     * constructor that gets intensity and Double type attenuation coefficient
-     * @param intensity
-     * @param kA Double type attenuation coefficient
-     */
-    public AmbientLight(Color intensity, Double kA){
-        this.intensity = intensity.scale(kA);
-    }
-
-    public Color getIntensity() {
-        return intensity;
-    }
-
-    //solid black lightning
-    public final static AmbientLight NONE = new AmbientLight(Color.BLACK,0d);
-
 }

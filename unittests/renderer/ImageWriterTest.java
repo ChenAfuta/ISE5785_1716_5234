@@ -2,34 +2,42 @@ package renderer;
 
 import org.junit.jupiter.api.Test;
 import primitives.Color;
+import primitives.Point;
+
+import static java.awt.Color.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit test for the {@link ImageWriter} class.
- * This test creates a simple image with a red grid on a teal background,
- * and writes it to a file named "test1".
+ * Testing ImageWriter Class
+ * @author Yair Ziv and Amitay Yosh'i.
  */
 class ImageWriterTest {
 
-    /** The image writer used for creating the test image. */
-    ImageWriter writer = new ImageWriter("test1", 800, 500);
-
     /**
-     * Test method for {@link ImageWriter#writePixel(int, int, primitives.Color)} and
-     * {@link ImageWriter#writeToImage()}.
-     * <p>
-     * This test draws a grid every 50 pixels in red over a background of RGB(0, 127.5, 127.5),
-     * and writes the image to the file system.
+     * Test method for {@link ImageWriter#writeToImage(String)}.
      */
     @Test
-    void imageWriterTest() {
-        for (int i = 0; i < 500; i += 1) {
-            for (int j = 0; j < 800; j += 1) {
-                if (i % 50 == 0 || j % 50 == 0)
-                    writer.writePixel(j, i, new Color(255, 0, 0)); // red grid lines
-                else
-                    writer.writePixel(j, i, new Color(0, 127.5, 127.5)); // teal background
-            }
-        }
-        writer.writeToImage(); // writes the image to disk
+    void testWriteToImage() {
+        // TC01: Yellow 800X500 pixels picture with red grid lines.
+        // Create an ImageWriter with a width of 800 and height of 500
+        ImageWriter imageWriter = new ImageWriter("image1",800,500);
+
+        // Loop through all pixels and set their color
+        for (int i = 0; i < imageWriter.getNx(); i++)
+            for (int j = 0; j < imageWriter.getNy(); j++)
+                imageWriter.writePixel(i, j, new Color(YELLOW));
+
+        // Loop that go through the rows and set the grid color
+        for (int i = 0; i < imageWriter.getNx(); i++)
+            for (int j = 0; j < imageWriter.getNy(); j+=50)
+                imageWriter.writePixel(i, j, new Color(RED));
+
+        // Loop that go through the columns and set the grid color
+        for (int i = 0; i < imageWriter.getNx(); i+=50)
+            for (int j = 0; j < imageWriter.getNy(); j++)
+                imageWriter.writePixel(i, j, new Color(RED));
+
+        // Write the image to a file
+        imageWriter.writeToImage("yellow with red grid");
     }
 }

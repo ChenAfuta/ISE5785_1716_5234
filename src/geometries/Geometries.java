@@ -9,7 +9,7 @@ import primitives.*;
  * It implements the Composite design pattern, allowing to group several geometries
  * into a single composite object that can also be intersected by a ray.
  */
-public class Geometries implements Intersectable {
+public class Geometries extends Intersectable {
     private final List<Intersectable> geometries = new LinkedList<>();
 
     /**
@@ -39,25 +39,21 @@ public class Geometries implements Intersectable {
         }
     }
 
-    /**
-     * Finds all intersection points of the given ray with the geometries in the collection.
-     * This method implements the Composite design pattern by iterating over all contained
-     * geometries and collecting their intersections.
-     *
-     * @param ray the ray to intersect with the geometries
-     * @return a list of intersection points, or {@code null} if there are no intersections
-     */
     @Override
-    public List<Point> findGeoIntersectionsHelper(Ray ray) {
-        List<Point> intersections = null;
+    protected List<Intersection>  calculateIntersectionsHelper(Ray ray) {
+        // List that contains all the intersections
+        List<Intersection> intersections = null;
+
+        // Loop that go threw all the geometries and find the intersections
         for (Intersectable geometry : geometries) {
-            List<Point> geometryIntersections = geometry.findIntersectionsHelper(ray);
-            if (geometryIntersections != null) {
+            var geometryIntersections = geometry.calculateIntersections(ray);
+            if (geometryIntersections != null)
                 if (intersections == null)
-                    intersections = new LinkedList<>();
-                intersections.addAll(geometryIntersections);
-            }
+                    intersections = new LinkedList<>(geometryIntersections);
+                else
+                    intersections.addAll(geometryIntersections);
         }
         return intersections;
+    }
 
 }

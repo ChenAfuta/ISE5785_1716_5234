@@ -22,7 +22,7 @@ class GeometryTests {
     @Test
     public void testFindIntersections() {
         // Create a sphere with radius 1 and center at (0, 0, 3)
-        Geometry geo = new Sphere(1, new Point(0, 0, 3));
+        Geometry geo = new Sphere( new Point(0, 0, 3),1);
 
         // ============ Equivalence Partitions Tests ==============
 

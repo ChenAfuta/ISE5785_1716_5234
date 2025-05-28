@@ -7,12 +7,15 @@ import primitives.Vector;
 
 import java.util.List;
 
+import static primitives.Util.alignZero;
+
 /**
  * The {@code Triangle} class represents a triangle in 3D space.
  * <p>
  * A triangle is a special case of a polygon with exactly three vertices.
  * It extends the {@link Polygon} class and inherits its properties and methods.
  */
+
 public class Triangle extends Polygon {
 
     /**
@@ -26,45 +29,44 @@ public class Triangle extends Polygon {
         super(a, b, c);
     }
 
-    /**
-     * Finds the intersection points between a given {@link Ray} and the triangle.
-     * <p>
-     * This method checks if the ray intersects the plane containing the triangle and
-     * verifies whether the intersection point lies inside the triangle.
-     *
-     * @param ray the ray to intersect with the triangle
-     * @return a list containing the intersection point if it lies within the triangle;
-     *         {@code null} if there is no intersection or the point is outside the triangle
-     */
     @Override
-    protected List<GeoPoint> findGeoIntersectionsHelper(Ray ray) {
-        Point p0 = ray.getPoint(0);
-        Vector dir = ray.getDirection();
-
-        // if the ray starts at the center of the sphere
-        if (center.equals(p0))
-            return List.of(new GeoPoint(this, ray.getPoint(radius)));
-
-        Vector u = (center.subtract(p0));
-        double tm = dir.dotProduct(u);
-        double d = Util.alignZero(Math.sqrt(u.lengthSquared() - tm * tm));
-        if (d >= radius)
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        // test the intersections with triangle’s plane
+        final var intersections = plane.findIntersections(ray);
+        if (intersections == null)
             return null;
 
-        double th = Math.sqrt(radius * radius - d * d);
-        double t1 = Util.alignZero(tm - th);
-        double t2 = Util.alignZero(tm + th);
+        // Point that represents the ray's head
+        final Point rayPoint = ray.getPoint(0);
+        // Vector that represents the ray's axis
+        final Vector rayVector = ray.getDirection();
 
-        // if the ray starts before the sphere
-        if (t1 > 0 && t2 > 0)
-            return List.of(new GeoPoint(this,ray.getPoint(t1)),new GeoPoint(this, ray.getPoint(t2)));
+        // vector1, vector2, vector3 can't be the ZERO Vector because it happens only if rayPoint = P1/P2/P3,
+        // which means the ray begins at the plane and there are no intersections with the plane at all,
+        // so we would have exit this method already because of the first condition
+        final Vector vector1 = vertices.get(0).subtract(rayPoint);
+        final Vector vector2 = vertices.get(1).subtract(rayPoint);
+        final Vector vector3 = vertices.get(2).subtract(rayPoint);
 
-        // if the ray starts inside the sphere
-        if (t1 > 0)
-            return List.of(new GeoPoint(this,ray.getPoint(t1)));
-        if (t2 > 0)
-            return List.of(new GeoPoint(this,ray.getPoint(t2)));
+        // normal1, normal2, normal3 can't be the ZERO Vector because it happens only if:
+        // vector1 and vector2 or vector2 and vector3 or vector3 and vector1
+        // are on the same line, which means rayPoint is on one of the triangle's edges,
+        // which means the ray begins at the plane and there are no intersections with the plane at all,
+        // so we would have exit this method already because of the first condition
+        final Vector normal1 = vector1.crossProduct(vector2).normalize();
+        final Vector normal2 = vector2.crossProduct(vector3).normalize();
+        final Vector normal3 = vector3.crossProduct(vector1).normalize();
+
+        final double s1 = alignZero(rayVector.dotProduct(normal1));
+        final double s2 = alignZero(rayVector.dotProduct(normal2));
+        final double s3 = alignZero(rayVector.dotProduct(normal3));
+
+        // the point is inside the triangle only if s1, s2 and s3 have the same sign and none of them is 0
+        if ((s1>0 && s2>0 && s3>0) || (s1<0 && s2<0 && s3<0)) {
+            Point intersectionPoint = intersections.getFirst();
+            return List.of(new Intersection(this, intersectionPoint));
+        }
 
         return null;
-}
+    }
 }

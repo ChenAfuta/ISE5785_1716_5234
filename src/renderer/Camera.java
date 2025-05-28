@@ -19,6 +19,14 @@ public class Camera implements Cloneable{
 
     private ImageWriter imageWriter;
     private RayTracerBase rayTracer;
+    /**
+     * The number of pixels across
+     */
+    private int nX = 1;
+    /**
+     * The number of pixels along the length
+     */
+    private int nY = 1;
 
     public Point getP0() {
         return p0;
@@ -106,10 +114,13 @@ public class Camera implements Cloneable{
     }
 
     /**
-     * writes to image
+     * Function writeToImage produces unoptimized png file of the image according
+     * to pixel color matrix in the directory of the project, using delegation.
+     * @param imageName the name of png file
+     * @return A camera
      */
-    public Camera writeToImage(){
-        imageWriter.writeToImage();
+    public Camera writeToImage(String imageName) {
+        imageWriter.writeToImage(imageName);
         return this;
     }
 
@@ -167,6 +178,32 @@ public class Camera implements Cloneable{
             this.Pto = Pto;
             return this;
         }
+        /**
+         * Sets the camera direction toward a given target point, assuming the Y-axis as the default up direction.
+         * Calculates Vto from the camera's position to the target, and adjusts Vup to be orthogonal.
+         *
+         * @param Pto the target point the camera should look at (see {@link primitives.Point})
+         * @return the updated {@link Builder} instance
+         * @throws IllegalArgumentException if the target point is directly above or below the camera
+         * @see primitives.Vector
+         */
+        public Builder setDirection(Point Pto) {
+            this.Pto = Pto;
+
+            Vector Vto = Pto.subtract(camera.p0).normalize();
+            Vector approxUp = new Vector(0, 1, 0);
+            Vector Vright = approxUp.crossProduct(Vto);
+
+            if (Vright.lengthSquared() == 0)
+                throw new IllegalArgumentException("Pto cannot be directly above or below the camera");
+
+            Vector Vup = Vright.crossProduct(Vto).normalize();
+
+            camera.Vto = Vto;
+            camera.Vup = Vup;
+
+            return this;
+        }
 
         /**
          * set the width and the height of the view plane
@@ -201,21 +238,30 @@ public class Camera implements Cloneable{
         }
 
         /**
-         * sets the ray tracer of the camera
-         * @param scene
-         * @param type the type of ray tracer
-         * @return the updated builder
+         * For now, set rayTracer if the type is simple, otherwise set rayTracer to null
+         * @param scene the scene that will be rendered using this ray tracer
+         * @param rayTracerType the type of the rayTracer
+         * @return A camera
          */
-        public Builder setRayTracer(Scene scene, RayTracerType type){
-            if (type == RayTracerType.SIMPLE)
+        public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
+            if (rayTracerType == RayTracerType.SIMPLE)
                 camera.rayTracer = new SimpleRayTracer(scene);
             else
                 camera.rayTracer = null;
             return this;
         }
-        public Builder setResolution(int nx, int nY){
+        /**
+         * Set the resolution of the view plane.
+         * @param nX number of pixels across (like width)
+         * @param nY number of pixels along the length (like height)
+         * @return A camera
+         */
+        public Builder setResolution(int nX, int nY) {
+            camera.nX = nX;
+            camera.nY = nY;
             return this;
         }
+
         /**
          * checks that all of camera's fields are well assigned
          * @throws MissingResourceException if a field is null or zero

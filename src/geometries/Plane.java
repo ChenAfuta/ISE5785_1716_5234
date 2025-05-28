@@ -2,99 +2,85 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
-import primitives.Util;
 import primitives.Vector;
 
 import java.util.List;
 
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
+
 /**
- * The {@code Plane} class represents an infinite plane in 3D space.
- * <p>
- * A plane is defined by a point on the plane and a normal vector perpendicular to it.
- * This class implements the {@link Intersectable} interface and extends {@link Geometry}.
+ * The Plane class represents a 2D plane of Euclidean geometry in Cartesian
+ * 3-Dimensional coordinate system.
+ * @author Yair Ziv and Amitay Yosh'i.
  */
-public class Plane extends Geometry implements Intersectable {
 
-    /** A point on the plane. */
-    private final Point point;
+public class Plane extends Geometry {
+    /**
+     * A point on the geometric plane used to define the plane's position
+     * in 3D Cartesian space.
+     */
+    private final Point head;
 
-    /** The normalized vector perpendicular to the plane (its normal). */
+    /**
+     * The (normalized) vector represents the direction of the plane.
+     */
     private final Vector normal;
 
     /**
-     * Constructs a plane from a point and a normal vector.
-     *
-     * @param point  a point on the plane
-     * @param normal the normal vector to the plane (will be normalized)
-     */
-    public Plane(Point point, Vector normal) {
-        this.point = point;
-        this.normal = normal.normalize();
-    }
-
-    /**
-     * Constructs a plane from three non-collinear points.
-     *
-     * @param p1 the first point
-     * @param p2 the second point
-     * @param p3 the third point
-     * @throws IllegalArgumentException if any two points are equal or if the points are collinear
+     * Constructs a Plane object using three points in 3D space.
+     * The three points define the direction and position of the plane.
+     * and calculates the normal
+     * @param p1 the first point on the plane.
+     * @param p2 the second point on the plane.
+     * @param p3 the third point on the plane
      */
     public Plane(Point p1, Point p2, Point p3) {
-        if (p1.equals(p2) || p1.equals(p3) || p2.equals(p3)) {
-            throw new IllegalArgumentException("Two or more points are identical");
-        }
-
+        this.head = p1;
         Vector v1 = p2.subtract(p1);
         Vector v2 = p3.subtract(p1);
-
-        if (v1.normalize().equals(v2.normalize()) || v1.normalize().equals(v2.normalize().scale(-1))) {
-            throw new IllegalArgumentException("The points are collinear");
-        }
-
-        this.point = p1;
         this.normal = v1.crossProduct(v2).normalize();
     }
 
     /**
-     * Returns the normal vector of the plane at the given point (constant for a plane).
-     *
-     * @param point a point on the plane (not used since the normal is the same everywhere)
-     * @return the normal vector
+     * Constructs a Plane object using a given point and a vector.
+     * The point specifies a location on the plane, and the vector defines the plane's normal direction.
+     * The normal vector is normalized during this initialization.
+     * @param p a Point object representing a position on the plane.
+     * @param v a Vector object representing the normal to the plane.
      */
-    public Vector getNormal(Point point) {
-        return this.normal;
+    public Plane(Point p, Vector v) {
+        this.head = p;
+        this.normal = v.normalize();
     }
 
-    /**
-     * Returns the normal vector of the plane.
-     *
-     * @return the normal vector
-     */
-    public Vector getNormal() {
-        return this.normal;
-    }
-
-    /**
-     * Finds the intersection point of the plane with a given {@link Ray}.
-     * <p>
-     * The method checks whether the ray is parallel to the plane, starts on the plane,
-     * or intersects it at a point in the ray's direction.
-     *
-     * @param ray the ray to intersect with the plane
-     * @return a list containing the intersection point if it exists; {@code null} otherwise
-     */
     @Override
-    protected List<Point> findGeoIntersectionsHelper(Ray ray) {
-        Vector direction = ray.getDirection();
-        Point p0 = ray.getPoint(0);
-        // if the ray is parallel to the plane or the ray starts on the plane at the point q
-        if (Util.isZero(direction.dotProduct(normal)) || q.equals(p0))
+    public Vector getNormal(Point p) {
+        return normal;
+    }
+
+    @Override
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        // Point that represents the ray's head
+        final Point rayPoint = ray.getPoint(0);
+        // Vector that represents the ray's axis
+        final Vector rayVector = ray.getDirection();
+
+        // in case the ray's head is the reference point in the plane, there are no intersections
+        if(rayPoint.equals(head))
             return null;
 
-        // calculate the intersection point
-        double t = normal.dotProduct(q.subtract(p0)) / normal.dotProduct(direction);
+        // numerator for the formula
+        final double numerator = normal.dotProduct(head.subtract(rayPoint));
+        // denominator for the formula
+        final double denominator = normal.dotProduct(rayVector);
+        // in case ray is parallel to the plane
+        if (isZero(denominator))
+            return null;
 
-        return Util.alignZero(t) <= 0 ? null : List.of(new Point(this, ray.getPoint(t)));
-}
+        final double t = alignZero(numerator / denominator);
+
+        // if (0 ≥ t) there are no intersections
+        return t > 0 ? List.of(new Intersection(this, ray.getPoint(t))) : null;
+    }
 }

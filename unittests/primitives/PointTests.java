@@ -7,15 +7,24 @@ import primitives.Point;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the Point class.
+ * Unit tests for the {@link primitives.Point} class.
+ * This class tests various operations on points such as subtraction, addition, and distance calculations.
  */
 class PointTests {
+    /** A sample point used for testing. */
     private final Point point1 = new Point(1, 2, 3);
+
+    /** Another sample point used for testing. */
     private final Point point2 = new Point(4, 5, 6);
+
+    /** A sample vector used for testing. */
     private final Vector vector1 = new Vector(1, 2, 3);
 
     /**
-     * Test for the subtract method.
+     * Test method for {@link Point#subtract(Point)}.
+     * <p>
+     * Verifies that subtracting two points produces the correct vector.
+     * Also checks that subtracting a point from itself throws an exception.
      */
     @Test
     void testSubtract() {
@@ -27,7 +36,9 @@ class PointTests {
     }
 
     /**
-     * Test for the add method.
+     * Test method for {@link Point#add(Vector)}.
+     * <p>
+     * Verifies that adding a vector to a point produces the correct point.
      */
     @Test
     void testAdd() {
@@ -36,7 +47,9 @@ class PointTests {
     }
 
     /**
-     * Test for the distanceSquared method.
+     * Test method for {@link Point#distanceSquared(Point)}.
+     * <p>
+     * Verifies that the squared distance between two points is calculated correctly.
      */
     @Test
     void testDistanceSquared() {
@@ -45,7 +58,9 @@ class PointTests {
     }
 
     /**
-     * Test for the distance method.
+     * Test method for {@link Point#distance(Point)}.
+     * <p>
+     * Verifies that the distance between two points is calculated correctly.
      */
     @Test
     void testDistance() {

@@ -56,15 +56,16 @@ public class ImageWriter {
 
    // ***************** Operations ******************** //
 
-   /** Function writeToImage produces unoptimized png file of the image according
-    * to
-    * pixel color matrix in the directory of the project */
-   public void writeToImage() {
+   /**
+    * Function writeToImage produces unoptimized png file of the image according
+    * to pixel color matrix in the directory of the project
+    * @param imageName the name of png file
+    */
+   void writeToImage(String imageName) {
       try {
          File file = new File(FOLDER_PATH + '/' + imageName + ".png");
          ImageIO.write(image, "png", file);
       } catch (IOException e) {
-         logger.log(Level.SEVERE, "I/O error", e);
          throw new IllegalStateException("I/O error - may be missing directory " + FOLDER_PATH, e);
       }
    }
