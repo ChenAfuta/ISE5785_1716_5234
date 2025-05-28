@@ -4,7 +4,7 @@ import geometries.Intersectable. Intersection;
 import lighting.LightSource;
 import primitives.*;
 import scene.Scene;
-import geometries.Intersectable. Intersection;
+
 import java.util.List;
 
 import static primitives.Util.alignZero;
@@ -16,6 +16,7 @@ import static primitives.Util.isZero;
 public class SimpleRayTracer extends RayTracerBase {
     /**
      * Constructs a new SimpleRayTracer with the given scene.
+     *
      * @param scene the scene that will be rendered using this ray tracer
      */
     public SimpleRayTracer(Scene scene) {
@@ -25,6 +26,7 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * Initializes the fields of the ray direction vector, the normal vector, and their dot product,
      * and returns false if the dot product is equal to zero, and true otherwise
+     *
      * @param intersection the intersection to update
      * @param rayDirection the ray direction vector
      * @return false if the dot product is equal to zero, and true otherwise
@@ -40,8 +42,9 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * Initializes the fields related to the light source at intersection,
      * and returns false if both dot products are equal to zero, and true otherwise
+     *
      * @param intersection the intersection to update
-     * @param light the source light
+     * @param light        the source light
      * @return false if both dot products are equal to zero, and true otherwise
      */
     public boolean setLightSource(Intersection intersection, LightSource light) {
@@ -58,6 +61,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * Calculates the local lighting effects at a given intersection point.
      * This includes the object's emission and contributions from all light sources
      * that affect the point (diffuse and specular reflections).
+     *
      * @param intersection the intersection point between a ray and a geometry
      * @return the resulting color from local light effects at the intersection
      */
@@ -66,7 +70,7 @@ public class SimpleRayTracer extends RayTracerBase {
         for (LightSource lightSource : scene.lights) {
             // also checks if sign(nl) == sign(nv))
             if (!setLightSource(intersection, lightSource) ||
-                    alignZero(intersection.lNormal * intersection.vNormal) <= 0 )
+                    alignZero(intersection.lNormal * intersection.vNormal) <= 0)
                 continue;
 
             Color iL = lightSource.getIntensity(intersection.point);
@@ -82,6 +86,7 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * Calculates the specular reflection component at the intersection point
      * based on the Phong reflection model.
+     *
      * @param intersection the intersection data including vectors and material
      * @return the specular reflection as a Double3 coefficient
      */
@@ -95,6 +100,7 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * Calculates the diffuse reflection component at the intersection point
      * based on the Phong reflection model.
+     *
      * @param intersection the intersection data including normal and material
      * @return the diffuse reflection as a Double3 coefficient
      */
@@ -105,8 +111,9 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * Calculates the total color at the intersection point, combining ambient light,
      * emission, and local lighting effects (diffuse + specular).
+     *
      * @param intersection the intersection for calculating the color
-     * @param ray the viewing ray that hit the geometry
+     * @param ray          the viewing ray that hit the geometry
      * @return the resulting color at the intersection point
      */
     private Color calcColor(Intersection intersection, Ray ray) {

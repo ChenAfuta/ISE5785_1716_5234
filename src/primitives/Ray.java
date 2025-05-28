@@ -6,7 +6,6 @@ import java.util.List;
 /**
  * Class Ray is the basic class representing a ray of Euclidean geometry in Cartesian
  * 3-Dimensional coordinate system.
- * @author Yair Ziv and Amitay Yosh'i
  */
 public class Ray {
     /**

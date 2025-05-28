@@ -5,13 +5,14 @@ import primitives.Point;
 import primitives.Vector;
 
 /**
- * DirectionalLight represents a light source with parallel rays coming from a very far away place in some direction,
- * similar to sunlight. The light has constant intensity everywhere.
- * @author Yair Ziv and Amitay Yosh'i.
+ * Represents a directional light source with parallel rays, similar to sunlight.
+ * The light has constant intensity everywhere.
+ * @see lighting.Light
+ * @see lighting.LightSource
  */
 public class DirectionalLight extends Light implements LightSource {
     /**
-     * The direction vector of the light rays (normalized)
+     * The direction vector of the light rays (normalized).
      */
     private final Vector direction;
 
@@ -25,11 +26,21 @@ public class DirectionalLight extends Light implements LightSource {
         this.direction = direction.normalize();
     }
 
+    /**
+     * Returns the intensity of the light at a given point.
+     * @param p the point in 3D space
+     * @return the intensity of the light
+     */
     @Override
     public Color getIntensity(Point p) {
         return intensity;
     }
 
+    /**
+     * Returns the direction vector of the light.
+     * @param p the point in 3D space
+     * @return the normalized direction vector
+     */
     @Override
     public Vector getL(Point p) {
         return direction;

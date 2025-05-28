@@ -7,20 +7,27 @@ import org.junit.jupiter.api.Test;
 import primitives.*;
 
 /**
- * Testing Camera Class
- * @author Dan
+ * Unit tests for the {@link renderer.Camera} class.
+ * This class tests the functionality of constructing rays and the camera builder.
+ * @see renderer.Camera
  */
 class CameraTest {
-    /** Camera builder for the tests */
+    /**
+     * Camera builder for the tests.
+     * @see renderer.Camera.Builder
+     */
     private final Camera.Builder cameraBuilder = Camera.getBuilder()
             .setLocation(Point.ZERO)
             .setVpDistance(10);
-    /** Assert failure message for a bad ray */
-    private static final String  BAD_RAY       = "Bad ray";
 
     /**
-     * Test method for
-     * {@link renderer.Camera#constructRay(int, int, int, int)}.
+     * Assert failure message for a bad ray.
+     */
+    private static final String BAD_RAY = "Bad ray";
+
+    /**
+     * Test method for {@link renderer.Camera#constructRay(int, int, int, int)}.
+     * This method tests the construction of rays from the camera through the view plane.
      */
     @Test
     void testConstructRay() {
@@ -61,7 +68,8 @@ class CameraTest {
     }
 
     /**
-     * Testing camera builder
+     * Test method for the {@link renderer.Camera.Builder}.
+     * This method tests the functionality of the camera builder.
      */
     @Test
     void testBuilder() {
