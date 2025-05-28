@@ -10,7 +10,6 @@ import static primitives.Util.isZero;
 
 /**
  * Camera class represents a camera in 3D space.
- * @author Yair Ziv and Amitay Yosh'i.
  */
 public class Camera implements Cloneable {
     /**
