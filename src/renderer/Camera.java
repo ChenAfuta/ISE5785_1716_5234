@@ -10,76 +10,86 @@ import static primitives.Util.isZero;
 
 /**
  * Camera class represents a camera in 3D space.
+ * It is responsible for constructing rays through pixels and rendering images.
+ * It uses a builder pattern for initialization.
+ * @see primitives.Point
+ * @see primitives.Vector
+ * @see primitives.Ray
+ * @see scene.Scene
  */
 public class Camera implements Cloneable {
     /**
-     * Point that represents the location of the camera
+     * The location of the camera in 3D space.
      */
     private Point p0;
     /**
-     * Vector that represents the direction the camera is pointing
+     * The direction the camera is pointing to.
      */
     private Vector vTo;
     /**
-     * Vector that represents the direction up from the camera
+     * The direction up from the camera.
      */
     private Vector vUp;
     /**
-     * Vector that represents the direction right from the camera
+     * The direction right from the camera.
      */
     private Vector vRight;
 
     /**
-     * The distance between camera and view plane
+     * The distance between the camera and the view plane.
      */
     private double distance = 0;
     /**
-     * The width of the view plane
+     * The width of the view plane.
      */
     private double width = 0;
     /**
-     * The height of the view plane
+     * The height of the view plane.
      */
     private double height = 0;
 
     /**
      * The image writer used to write the final rendered image to a file.
+     * @see renderer.ImageWriter
      */
     private ImageWriter imageWriter;
     /**
      * The ray tracer calculates the color of each pixel by tracing rays through the scene.
+     * @see renderer.RayTracerBase
      */
     private RayTracerBase rayTracer;
     /**
-     * The number of pixels across
+     * The number of pixels across (horizontal resolution).
      */
     private int nX = 1;
     /**
-     * The number of pixels along the length
+     * The number of pixels along the length (vertical resolution).
      */
     private int nY = 1;
 
     /**
-     * Camera empty constructor
+     * Private constructor for the Camera class.
+     * Use the {@link Builder} to create an instance.
      */
     private Camera() {}
 
     /**
-     * Builder getter
-     *
+     * Returns a new instance of the Camera builder.
      * @return the camera builder
+     * @see Builder
      */
     public static Builder getBuilder() {
         return new Builder();
     }
 
     /**
-     * Calculates the ray from camera through a specific pixel with a given resolution
-     * @param nX the number of columns of pixels.
-     * @param nY the number of rows of pixels.
+     * Constructs a ray from the camera through a specific pixel.
+     * @param nX the number of columns of pixels
+     * @param nY the number of rows of pixels
      * @param j the pixel's column number
-     * @param i the pixel's row number.
-     * @return the ray from camera to the middle of the pixel
+     * @param i the pixel's row number
+     * @return the ray from the camera to the middle of the pixel
+     * @see primitives.Ray
      */
     public Ray constructRay(int nX, int nY, int j, int i) {
         // Calculate the center point of the view plane
@@ -108,9 +118,8 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * The method will go through all the pixels according to the resolution,
-     * and perform ray tracing to color all the pixels of the image.
-     * @return A camera
+     * Renders the image by tracing rays through all pixels.
+     * @return the camera instance
      */
     public Camera renderImage() {
         for(int i=0; i < nX; i++)
@@ -120,10 +129,11 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * This method prints a grid on an image.
+     * Prints a grid on the image.
      * @param interval the number of pixels in the width/height of the grid square
      * @param color the color of the grid
-     * @return A camera
+     * @return the camera instance
+     * @see primitives.Color
      */
     public Camera printGrid(int interval, Color color) {
         for(int i=0; i < nX; i+=interval)
@@ -136,10 +146,10 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Function writeToImage produces unoptimized png file of the image according
-     * to pixel color matrix in the directory of the project, using delegation.
-     * @param imageName the name of png file
-     * @return A camera
+     * Writes the rendered image to a file.
+     * @param imageName the name of the PNG file
+     * @return the camera instance
+     * @see renderer.ImageWriter#writeToImage(String)
      */
     public Camera writeToImage(String imageName) {
         imageWriter.writeToImage(imageName);
@@ -147,7 +157,7 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * This method colors a pixel.
+     * Casts a ray through a specific pixel and colors it.
      * @param i the pixel's row number
      * @param j the pixel's column number
      */
@@ -158,18 +168,19 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Class for building the camera
+     * Builder class for constructing a Camera instance.
      */
     public static class Builder {
         /**
-         * Camera object
+         * The Camera instance being built.
          */
         private final Camera camera = new Camera();
 
         /**
-         * Set the location of the camera
+         * Sets the location of the camera.
          * @param p0 the location of the camera
-         * @return A camera
+         * @return the builder instance
+         * @see primitives.Point
          */
         public Builder setLocation(Point p0) {
             camera.p0 = p0;
@@ -177,11 +188,12 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Ensures that vector up orthogonal to vector to, then initialize them.
+         * Sets the direction of the camera using orthogonal vectors.
          * @param vTo the direction the camera is pointing
          * @param vUp the direction up from the camera
-         * @return A camera
-         * @throws IllegalArgumentException if vector up isn't orthogonal to vector to
+         * @return the builder instance
+         * @throws IllegalArgumentException if vTo and vUp are not orthogonal
+         * @see primitives.Vector
          */
         public Builder setDirection(Vector vTo, Vector vUp) {
             if (!isZero(vTo.dotProduct(vUp)))
@@ -193,10 +205,12 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Calculating the vector to, vector right, and the "exact" vector up
-         * @param targetPoint The camera's target point (what point the photographer is aiming at)
-         * @param vUp the direction up from the camera (Not necessarily the "exact" vector)
-         * @return A camera
+         * Sets the direction of the camera using a target point and an up vector.
+         * @param targetPoint the target point the camera is aiming at
+         * @param vUp the direction up from the camera
+         * @return the builder instance
+         * @see primitives.Point
+         * @see primitives.Vector
          */
         public Builder setDirection(Point targetPoint, Vector vUp) {
             camera.vTo = targetPoint.subtract(camera.p0);
@@ -210,20 +224,22 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * In case the target point is exactly "above" the camera (the camera direction will be with the Y axis),
-         * an exception should be thrown because the cross product result will be the zero vector.
-         * @param targetPoint the camera's target point (what point the photographer is aiming at)
-         * @return A camera
+         * Sets the direction of the camera using a target point.
+         * Defaults to using the Y-axis as the up vector.
+         * @param targetPoint the target point the camera is aiming at
+         * @return the builder instance
+         * @see primitives.Point
          */
         public Builder setDirection(Point targetPoint) {
             return setDirection(targetPoint, Vector.AXIS_Y);
         }
 
         /**
-         * Set the size of the view plane.
+         * Sets the size of the view plane.
          * @param width the width of the view plane
          * @param height the height of the view plane
-         * @return A camera
+         * @return the builder instance
+         * @throws IllegalArgumentException if width or height is non-positive
          */
         public Builder setVpSize(double width, double height) {
             if (alignZero(width) <= 0 || alignZero(height) <= 0)
@@ -235,9 +251,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Set the distance between camera and view plane.
-         * @param distance the distance between camera and view plane
-         * @return A camera
+         * Sets the distance between the camera and the view plane.
+         * @param distance the distance to the view plane
+         * @return the builder instance
+         * @throws IllegalArgumentException if distance is non-positive
          */
         public Builder setVpDistance(double distance) {
             if (alignZero(distance) <= 0)
@@ -248,10 +265,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Set the resolution of the view plane.
-         * @param nX number of pixels across (like width)
-         * @param nY number of pixels along the length (like height)
-         * @return A camera
+         * Sets the resolution of the view plane.
+         * @param nX the number of pixels across (horizontal resolution)
+         * @param nY the number of pixels along the length (vertical resolution)
+         * @return the builder instance
          */
         public Builder setResolution(int nX, int nY) {
             camera.nX = nX;
@@ -260,8 +277,10 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Checking the camera data and intelligizing vector Right
-         * @return a clone of intelligized camera
+         * Builds and returns the Camera instance.
+         * Validates all required fields before returning.
+         * @return the constructed Camera instance
+         * @throws MissingResourceException if any required field is missing
          */
         public Camera build() {
             final String className = "Camera";
@@ -323,10 +342,11 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * For now, set rayTracer if the type is simple, otherwise set rayTracer to null
-         * @param scene the scene that will be rendered using this ray tracer
-         * @param rayTracerType the type of the rayTracer
-         * @return A camera
+         * Sets the ray tracer for the camera.
+         * @param scene the scene to be rendered
+         * @param rayTracerType the type of ray tracer to use
+         * @return the builder instance
+         * @see renderer.RayTracerType
          */
         public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
             if (rayTracerType == RayTracerType.SIMPLE)
@@ -337,3 +357,4 @@ public class Camera implements Cloneable {
         }
     }
 }
+

@@ -12,11 +12,13 @@ import primitives.Vector;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Testing integration between creating rays from a camera and calculating ray intersections with geometries.
+ * Unit tests for integration between {@link renderer.Camera} and {@link geometries.Intersectable}.
+ * This class tests the intersections of rays constructed by the camera with various geometries.
  */
 class CameraRayIntersectionsIntegrationsTests {
     /**
-     * Camera for the tests
+     * Camera for the tests.
+     * @see renderer.Camera
      */
     private final Camera camera = Camera.getBuilder()
             .setLocation(new Point(0, 0, 0.5))
@@ -26,20 +28,18 @@ class CameraRayIntersectionsIntegrationsTests {
             .build();
 
     /**
-     * A method to help calculate the sum of the intersection points of all rays
-     * emanating from the camera with a given geometry.
+     * Helper method to assert the number of intersections between rays and a geometry.
+     * @param intersectionsExpected the expected number of intersections
+     * @param geometry the geometry to test intersections with
      * @param nX the width of the view plane
      * @param nY the height of the view plane
-     * @param intersectionsExpected the number of expected intersection points.
-     * @param geometry              the geometry to calculate the intersection points with.
-     * @param message               the message to return in case there was a problem.
+     * @param message the message to display if the assertion fails
      */
     private void assertNumOfIntersections(int intersectionsExpected,
                                           Intersectable geometry,
                                           int nX,
                                           int nY,
-                                          String message
-    ) {
+                                          String message) {
         int intersectionsCounter = 0;
 
         // Loop through each pixel in the view plane
@@ -59,7 +59,7 @@ class CameraRayIntersectionsIntegrationsTests {
     }
 
     /**
-     * Test method for integration with Sphere.
+     * Test method for integration with {@link geometries.Sphere}.
      */
     @Test
     void testSphereIntegration() {
@@ -90,7 +90,7 @@ class CameraRayIntersectionsIntegrationsTests {
     }
 
     /**
-     * Test method for integration with Plane.
+     * Test method for integration with {@link geometries.Plane}.
      */
     @Test
     void testPlaneIntegration() {
@@ -104,14 +104,14 @@ class CameraRayIntersectionsIntegrationsTests {
         assertNumOfIntersections(9, plane, 3, 3,
                 "Plane with high slope");
 
-        // TC03:  Plane with a shallow angle, some rays miss it
+        // TC03: Plane with a shallow angle, some rays miss it
         plane = new Plane(new Point(0, 0, -3), new Vector(0, 3, -1));
         assertNumOfIntersections(6, plane, 3, 3,
                 "Plane with low slope");
     }
 
     /**
-     * Test method for integration with Triangle.
+     * Test method for integration with {@link geometries.Triangle}.
      */
     @Test
     void testTriangleIntegration() {

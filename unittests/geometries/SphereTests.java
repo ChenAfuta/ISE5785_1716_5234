@@ -9,8 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Testing Sphere
- *
- * @author Yair Ziv and Amitay Yosh'i
  */
 class SphereTests {
     /**

@@ -146,6 +146,5 @@ class RenderTests {
               .build() //
               .renderImage() //
               .printGrid(100, new Color(YELLOW)) //
-              .writeToImage("xml render test");
-   }
+              .writeToImage("xml render test");}
 }

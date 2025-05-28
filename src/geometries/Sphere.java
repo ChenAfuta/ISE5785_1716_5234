@@ -11,7 +11,6 @@ import java.util.List;
 /**
  * The Sphere class represents a 3D geometrical body of Euclidean geometry in Cartesian
  * 3-Dimensional coordinate system.
- * @author Yair Ziv and Amitay Yosh'i
  */
 public class Sphere extends RadialGeometry {
     /**
