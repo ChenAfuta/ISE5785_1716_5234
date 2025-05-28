@@ -20,21 +20,21 @@ class ImageWriterTest {
     void testWriteToImage() {
         // TC01: Yellow 800X500 pixels picture with red grid lines.
         // Create an ImageWriter with a width of 800 and height of 500
-        ImageWriter imageWriter = new ImageWriter("image1",800,500);
+        ImageWriter imageWriter = new ImageWriter(800,500);
 
         // Loop through all pixels and set their color
-        for (int i = 0; i < imageWriter.getNx(); i++)
-            for (int j = 0; j < imageWriter.getNy(); j++)
+        for (int i = 0; i < imageWriter.nX(); i++)
+            for (int j = 0; j < imageWriter.nY(); j++)
                 imageWriter.writePixel(i, j, new Color(YELLOW));
 
         // Loop that go through the rows and set the grid color
-        for (int i = 0; i < imageWriter.getNx(); i++)
-            for (int j = 0; j < imageWriter.getNy(); j+=50)
+        for (int i = 0; i < imageWriter.nX(); i++)
+            for (int j = 0; j < imageWriter.nY(); j+=50)
                 imageWriter.writePixel(i, j, new Color(RED));
 
         // Loop that go through the columns and set the grid color
-        for (int i = 0; i < imageWriter.getNx(); i+=50)
-            for (int j = 0; j < imageWriter.getNy(); j++)
+        for (int i = 0; i < imageWriter.nX(); i+=50)
+            for (int j = 0; j < imageWriter.nY(); j++)
                 imageWriter.writePixel(i, j, new Color(RED));
 
         // Write the image to a file
