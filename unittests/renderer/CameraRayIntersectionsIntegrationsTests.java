@@ -13,8 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Testing integration between creating rays from a camera and calculating ray intersections with geometries.
- *
- * @author Yair Ziv and Amitay Yosh'i
  */
 class CameraRayIntersectionsIntegrationsTests {
     /**
