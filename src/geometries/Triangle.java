@@ -2,37 +2,32 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
-import primitives.Util;
 import primitives.Vector;
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
 
 import java.util.List;
 
-import static primitives.Util.alignZero;
-
 /**
- * The {@code Triangle} class represents a triangle in 3D space.
- * <p>
- * A triangle is a special case of a polygon with exactly three vertices.
- * It extends the {@link Polygon} class and inherits its properties and methods.
+ * The Triangle class represents a two-dimensional triangle of Euclidean geometry in  Cartesian
+ * 3-Dimensional coordinate system.
  */
-
 public class Triangle extends Polygon {
-
     /**
-     * Constructs a triangle defined by three vertices.
-     *
-     * @param a the first vertex
-     * @param b the second vertex
-     * @param c the third vertex
+     * Constructs a Triangle object using three points in 3D space.
+     * @param p1 the first point on the triangle.
+     * @param p2 the second point on the triangle.
+     * @param p3 the third point on the triangle.
      */
-    public Triangle(Point a, Point b, Point c) {
-        super(a, b, c);
+    public Triangle(Point p1, Point p2, Point p3) {
+        super(p1, p2, p3);
     }
 
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         // test the intersections with triangle’s plane
-        final var intersections = plane.findIntersections(ray);
+        // we prefer to use the helper method so that we already check the distance
+        final var intersections = plane.calculateIntersections(ray, maxDistance);
         if (intersections == null)
             return null;
 
@@ -63,8 +58,8 @@ public class Triangle extends Polygon {
 
         // the point is inside the triangle only if s1, s2 and s3 have the same sign and none of them is 0
         if ((s1>0 && s2>0 && s3>0) || (s1<0 && s2<0 && s3<0)) {
-            Point intersectionPoint = intersections.getFirst();
-            return List.of(new Intersection(this, intersectionPoint));
+            Intersection intersection = intersections.getFirst();
+            return List.of(new Intersection(this, intersection.point));
         }
 
         return null;

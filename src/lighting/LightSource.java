@@ -5,7 +5,6 @@ import primitives.*;
 /**
  * Interface LightSource represents a generic light source in a 3D scene.
  * It defines the basic functionality that all light sources must implement.
- * @author Yair Ziv and Amitay Yosh'i.
  */
 public interface LightSource {
     /**
@@ -22,4 +21,11 @@ public interface LightSource {
      * @return the normalized direction vector from the light to point
      */
     Vector getL(Point p);
+
+    /**
+     * Returns the distance from the light source to a given point in space.
+     * @param point the point in 3D space for which the distance is computed
+     * @return the distance from the light source to point
+     */
+    double getDistance(Point point);
 }
