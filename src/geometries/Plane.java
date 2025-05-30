@@ -12,7 +12,8 @@ import static primitives.Util.isZero;
 /**
  * The Plane class represents a 2D plane of Euclidean geometry in a Cartesian
  * 3-Dimensional coordinate system.
- * */
+
+ */
 
 public class Plane extends Geometry {
     /**
