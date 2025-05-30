@@ -7,7 +7,6 @@ import primitives.Vector;
 /**
  * PointLight represents a light source that emits light from a single point in space,
  * with intensity decreasing based on distance using attenuation factors.
- * @author Yair Ziv and Amitay Yosh'i.
  */
 public class PointLight extends Light implements LightSource {
     /**
