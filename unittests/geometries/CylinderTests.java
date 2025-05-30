@@ -1,54 +1,101 @@
 package geometries;
 
-import geometries.Cylinder;
-import primitives.Point;
-import primitives.Vector;
-import primitives.Ray;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
+import primitives.Point;
+import primitives.Ray;
+import primitives.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the {@link Cylinder} class.
+ * Testing Cylinder
  */
 class CylinderTests {
 
     /**
-     * Test for the {@link Cylinder#getHeight()} method.
-     * Verifies that the height returned matches the expected value.
+     * Test method for {@link Cylinder#getNormal(Point)}.
      */
     @Test
-    void getHeight() {
-        // Create a cylinder with a height of 5
-        Cylinder cylinder = new Cylinder(new Ray(new Point(0, 0, 0), new Vector(0, 0, 1)), 2, 5);
-        // Assert that the height is correct
-        assertEquals(5, cylinder.getHeight(), "The height of the cylinder is incorrect");
+    void testGetNormal() {
+        // A cylinder for test
+        final Cylinder cylinder =
+                new Cylinder(5, new Ray(new Point(1,2,3), new Vector(0,1,0)), 10);
+        // A vector for the excepted normal on the lower base of the cylinder
+        final Vector exceptedLowerNormal = new Vector(0,-1,0);
+        // A vector for the excepted normal on the upper base of the cylinder
+        final Vector exceptedUpperNormal = new Vector(0,1,0);
+
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: Test that compares the cylinder's normal to the expected result when the point is on the envelope.
+        // A point for tests at (5,7,6)
+        final Point p576 = new Point(5,7,6);
+
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> cylinder.getNormal(p576), "");
+        assertEquals(new Vector(0.8,0,0.6), cylinder.getNormal(p576),
+                "ERROR: The calculation of the normal isn't as excepted");
+
+        // TC02: Test that compares the cylinder's normal to the expected result when the point is on the lower base.
+        // A point for tests at (2,2,2)
+        final Point p222 = new Point(2,2,2);
+
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> cylinder.getNormal(p222), "");
+        assertEquals(exceptedLowerNormal, cylinder.getNormal(p222),
+                "ERROR: The calculation of the normal isn't as excepted");
+
+        // TC03: Test that compares the cylinder's normal to the expected result when the point is on the upper base.
+        // A point for tests at (2,12,2)
+        final Point p2_12_2 = new Point(2,12,2);
+
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> cylinder.getNormal(p2_12_2), "");
+        assertEquals(exceptedUpperNormal, cylinder.getNormal(p2_12_2),
+                "ERROR: The calculation of the normal isn't as excepted");
+
+        // =============== Boundary Values Tests ==================
+        // TC11: Checks the cylinder's normal when the point is the center of the lower base.
+        // A point for tests at (1,2,3)
+        final Point p123 = new Point(1,2,3);
+
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> cylinder.getNormal(p123), "");
+        assertEquals(exceptedLowerNormal, cylinder.getNormal(p123),
+                "ERROR: The calculation of the normal isn't as excepted");
+
+        // TC12: Checks the cylinder's normal when the point is the center of the upper base.
+        // A point for tests at (1,12,3)
+        final Point p1_12_3 = new Point(1,12,3);
+
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> cylinder.getNormal(p1_12_3), "");
+        assertEquals(exceptedUpperNormal, cylinder.getNormal(p1_12_3),
+                "ERROR: The calculation of the normal isn't as excepted");
+
+
+        // TC13: Checks the cylinder's normal when the point is between the lower base and the envelope.
+        // A point for tests at (5,2,6)
+        final Point p526 = new Point(5,2,6);
+
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> cylinder.getNormal(p526), "");
+        assertEquals(exceptedLowerNormal, cylinder.getNormal(p526),
+                "ERROR: The calculation of the normal isn't as excepted");
+
+        // TC14: Checks the cylinder's normal when the point is between the upper base and the envelope.
+        // A point for tests at (5,12,6)
+        final Point p5_12_6 = new Point(5,12,6);
+
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> cylinder.getNormal(p5_12_6), "");
+        assertEquals(exceptedUpperNormal, cylinder.getNormal(p5_12_6),
+                "ERROR: The calculation of the normal isn't as excepted");
     }
 
     /**
-     * Test for the {@link Cylinder#getNormal(Point)} method.
-     * Verifies the correctness of the normal vector on the surface, bottom base, and top base.
+     * Test method for {@link Cylinder#findIntersections(Ray)}.
      */
     @Test
-    void getNormal() {
-        // Create a cylinder with a height of 5 and radius of 2
-        Cylinder cylinder = new Cylinder(new Ray(new Point(0, 0, 0), new Vector(0, 0, 1)), 2, 5);
-
-        // Test on the surface - a point on the surface of the cylinder
-        Point p1 = new Point(2, 0, 3); // Point on the curved surface
-        Vector expectedNormal1 = new Vector(1, 0, 0); // Expected normal vector
-        assertEquals(expectedNormal1, cylinder.getNormal(p1), "The normal vector on the surface is incorrect");
-
-        // Test on the bottom base - a point on the bottom base of the cylinder
-        Point p2 = new Point(1, 1, 0); // Point on the bottom base
-        Vector expectedNormal2 = new Vector(0, 0, -1); // Expected normal vector
-        assertEquals(expectedNormal2, cylinder.getNormal(p2), "The normal vector on the bottom base is incorrect");
-
-        // Test on the top base - a point on the top base of the cylinder
-        Point p3 = new Point(-1, -1, 5); // Point on the top base
-        Vector expectedNormal3 = new Vector(0, 0, 1); // Expected normal vector
-        assertEquals(expectedNormal3, cylinder.getNormal(p3), "The normal vector on the top base is incorrect");
+    void testFindIntersections() {
     }
 }

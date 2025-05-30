@@ -7,7 +7,6 @@ import primitives.Vector;
 /**
  * SpotLight represents a point light source with a specific direction and beam concentration.
  * The light is focused along a direction, and intensity can be adjusted using a narrow beam factor.
- * @author Yair Ziv and Amitay Yosh'i.
  */
 public class SpotLight extends PointLight {
     /**

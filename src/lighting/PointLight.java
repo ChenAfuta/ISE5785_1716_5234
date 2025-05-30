@@ -7,7 +7,6 @@ import primitives.Vector;
 /**
  * PointLight represents a light source that emits light from a single point in space,
  * with intensity decreasing based on distance using attenuation factors.
- * @author Yair Ziv and Amitay Yosh'i.
  */
 public class PointLight extends Light implements LightSource {
     /**
@@ -92,5 +91,15 @@ public class PointLight extends Light implements LightSource {
     public PointLight setKq(double kQ) {
         this.kQ = kQ;
         return this;
+    }
+
+    /**
+     * Calculates the distance from the light source to a given point.
+     * @param point the point in 3D space for which the distance is computed
+     * @return the distance from the light source to the point
+     */
+    @Override
+    public double getDistance(Point point) {
+        return position.distance(point);
     }
 }

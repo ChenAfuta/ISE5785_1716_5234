@@ -3,67 +3,56 @@ package geometries;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+import primitives.Util;
 
 import java.util.List;
 
 /**
- * The {@code Tube} class represents a geometric tube in 3D space.
- * <p>
- * A tube is an infinite cylinder defined by a central axis {@link Ray}
- * and a constant radius. Unlike a finite cylinder, a tube extends infinitely in both directions.
- * </p>
- * The tube inherits the radius field and behavior from {@link RadialGeometry}.
+ * The Tube class represents a 3D tube of Euclidean geometry in a Cartesian
+ * 3-Dimensional coordinate system.
  */
 public class Tube extends RadialGeometry {
-
     /**
-     * The central axis (infinite ray) that defines the orientation and location of the tube.
+     * The central axis of the tube, which is represented by a ray in 3D space.
      */
-    protected final Ray axis;
+    protected final Ray ray;
 
     /**
-     * Constructs a new {@code Tube} with the given radius and central axis.
+     * Constructs a Tube object with a specified radius and central axis ray.
      *
-     * @param radius the radius of the tube (must be positive)
-     * @param ray    the central axis of the tube
+     * @param radius the radius of the tube; must be a positive value.
+     * @param ray    the central axis of the tube, represented as a Ray object.
      */
-    public Tube(Double radius, Ray ray) {
+    public Tube(double radius, Ray ray) {
         super(radius);
-        this.axis = ray;
+        this.ray = ray;
     }
 
-    /**
-     * Returns the normal vector to the surface of the tube at a given point.
-     * <p>
-     * This is computed by projecting the point onto the axis and finding the vector
-     * perpendicular to the axis direction from the axis to the point.
-     *
-     * @param point a point on the surface of the tube
-     * @return the normalized vector orthogonal to the tube at the given point
-     */
-    public Vector getNormal(Point point) {
-        Vector fromAxisOrigin = point.subtract(axis.getPoint(0));
-
-        // Project the vector onto the axis direction to find the closest point on the axis
-        double t = fromAxisOrigin.dotProduct(axis.getDirection());
-
-        // Find the closest point on the axis to the given point
-        Point closestPointOnAxis = axis.getPoint(t);
-
-        // The normal is the vector from the closest point on the axis to the surface point
-        return point.subtract(closestPointOnAxis).normalize();
-    }
-
-    /**
-     * Finds the intersection points of a given ray with the tube.
-     * <p>
-     * This method is not yet implemented and currently returns {@code null}.
-     *
-     * @param ray the ray for which to find intersections with the tube
-     * @return a list of intersection points, or {@code null} if unimplemented
-     */
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    public Vector getNormal(Point p) {
+        // A variable that contains the Point of the Ray.
+        final Point rayPoint = ray.getPoint(0);
+        // A variable that contains the Vector of the Ray
+        final Vector rayVector = ray.getDirection();
+
+        // Help variable for calculating the normal.
+        // If it is 0 - this means that the given point (p) is on the circle whose center is the point of the ray.
+        // This means that the angle between
+        // the ray vector and the vector between the point of the ray and the given point is 90, and the scalar is 0.
+        final double t = rayVector.dotProduct(p.subtract(rayPoint));
+
+        // In the case where the scalar is 0,
+        // it turns out that we will be doing a vector product with scalar 0, and the can't a vector 0.
+        // So we ensure that it won't happen
+        if (Util.isZero(t))
+            return p.subtract(rayPoint).normalize();
+        else
+            // According to the calculation, we learned
+            return p.subtract(ray.getPoint(t)).normalize();
+    }
+
+    @Override
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         throw new UnsupportedOperationException("This method is not implemented yet");
     }
 }

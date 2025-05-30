@@ -1,51 +1,53 @@
 package geometries;
 
-import geometries.Tube;
+import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the {@link Tube} class.
- * <p>
- * This class tests the functionality of the {@code Tube} class, including its methods
- * for calculating normals and finding intersections.
+ * Testing Tube
  */
 class TubeTests {
 
     /**
      * Test method for {@link Tube#getNormal(Point)}.
-     * <p>
-     * Verifies that the normal vector at a point on the surface of the tube is
-     * perpendicular to the tube's axis and has unit length.
      */
     @Test
-    void getNormal() {
-        // Create a tube with radius 2 and axis along the Z-axis
-        Tube tube = new Tube(2.0, new Ray(new Point(0, 0, 0), new Vector(0, 0, 1)));
+    void testGetNormal() {
+        // A tube for test
+        final Tube tube = new Tube(5, new Ray(new Point(1,2,3), new Vector(0,1,0)));
+        // A vector for the excepted normal
+        final Vector exceptedNormal = new Vector(0.8,0,0.6);
 
-        // Point on the tube surface, 2 units away from the axis along the X-axis
-        Point p = new Point(2, 0, 3);
-        Vector expectedNormal = new Vector(1, 0, 0); // Normal should be in the direction away from the axis
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: Test that compares the tube's normal to the expected result.
+        // A point for tests at (5,7,6)
+        final Point p576 = new Point(5,7,6);
 
-        // Verify the normal vector is as expected and has unit length
-        assertEquals(expectedNormal, tube.getNormal(p), "The normal vector of the tube is incorrect");
-        assertEquals(1, tube.getNormal(p).length(), "The length of the normal vector should be 1");
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> tube.getNormal(p576), "");
+        assertEquals(exceptedNormal, tube.getNormal(p576),
+                "ERROR: The calculation of the normal isn't as excepted");
+
+        // =============== Boundary Values Tests ==================
+        // TC11: Test that compares the tube's normal to the expected result
+        // when the point is opposite the head of the ray (Point that closest to the head).
+        // A point for tests at (5,2,6)
+        final Point p526 = new Point(5,2,6);
+
+        // ensure there are no exceptions
+        assertDoesNotThrow(() -> tube.getNormal(p526), "");
+        assertEquals(exceptedNormal, tube.getNormal(p526),
+                "ERROR: The calculation of the normal isn't as excepted");
     }
 
     /**
      * Test method for {@link Tube#findIntersections(Ray)}.
-     * <p>
-     * This test will check various cases of ray intersections with the tube.
-     * Currently, the implementation is incomplete.
      */
     @Test
-    void findIntersections() {
-        // Test cases to be implemented
+    void testFindIntersections() {
     }
 }

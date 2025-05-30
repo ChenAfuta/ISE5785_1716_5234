@@ -45,4 +45,14 @@ public class DirectionalLight extends Light implements LightSource {
     public Vector getL(Point p) {
         return direction;
     }
+    /**
+     * Returns the distance from the light source to a given point.
+     * Since directional light is considered to be infinitely far away, this method returns infinity.
+     * @param point the point in 3D space
+     * @return the distance from the light source to the point (infinity)
+     */
+    @Override
+    public double getDistance(Point point) {
+        return Double.POSITIVE_INFINITY;
+    }
 }
