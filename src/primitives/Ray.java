@@ -129,5 +129,5 @@ public class Ray {
     @Override
     public String toString() {
         return "Ray:\n" + p.toString() + " " + v.toString();
-    }
+  }
 }

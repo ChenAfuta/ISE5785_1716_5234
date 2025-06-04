@@ -241,7 +241,7 @@ public class SimpleRayTracer extends RayTracerBase {
 
         // If there's no blocking object, the point is unshaded
         return closestIntersection == null || !(closestIntersection.geometry.getMaterial().kT.lowerThan(MIN_CALC_COLOR_K));
-}
+    }
 
     /**
      * Initializes intersection properties such as direction and normal.
@@ -284,6 +284,6 @@ public class SimpleRayTracer extends RayTracerBase {
         Intersection closestIntersection = findClosestIntersection(ray);
         if (closestIntersection == null)
             return scene.background;
-        return calcColor(closestIntersection, ray);
-    }
+        return calcColor(closestIntersection,ray);
+ }
 }

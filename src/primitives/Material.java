@@ -6,6 +6,14 @@ package primitives;
  */
 public class Material {
     /**
+     * The Transparency coefficient, initialized with (0,0,0)
+     */
+    public Double3 kT = Double3.ZERO;
+    /**
+     * The Reflection coefficient, initialized with (0,0,0)
+     */
+    public Double3 kR = Double3.ZERO;
+    /**
      * The Ambient light attenuation coefficient, initialized with (1,1,1)
      */
     public Double3 kA = Double3.ONE;
@@ -20,11 +28,6 @@ public class Material {
     /**
      * the material’s shininess, initialized with 0
      */
-    public Double3 kT = Double3.ONE;
-    /**
-     * The material’s shininess, initialized with 0
-     */
-    public Double3 kR = Double3.ONE;
 
     public int nSh = 0;
 
@@ -52,7 +55,44 @@ public class Material {
         this.kA = new Double3(kA);
         return this;
     }
+    /**
+     * Setter for the Ambient light specular attenuation coefficient
+     * @param kT the Ambient light specular attenuation coefficient
+     * @return the Material
+     */
+    public Material setKT(Double3 kT) {
+        this.kT = kT;
+        return this;
+    }
 
+    /**
+     * Setter for the Transparency coefficient
+     * @param kT the Transparency coefficient
+     * @return the Material
+     */
+    public Material setKT(double kT) {
+        this.kT = new Double3(kT);
+        return this;
+    }
+    /**
+     * Setter for the Ambient light specular attenuation coefficient
+     * @param kR the Ambient light specular attenuation coefficient
+     * @return the Material
+     */
+    public Material setKR(Double3 kR) {
+        this.kR = kR;
+        return this;
+    }
+
+    /**
+     * Setter for the Transparency coefficient
+     * @param kR the Transparency coefficient
+     * @return the Material
+     */
+    public Material setKR(double kR) {
+        this.kR = new Double3(kR);
+        return this;
+    }
     /**
      * Setter for the Ambient light specular attenuation coefficient
      * @param kS the Ambient light specular attenuation coefficient
@@ -92,41 +132,7 @@ public class Material {
         this.kD = new Double3(kD);
         return this;
     }
-    /**
-     * Setter for the material’s transparency coefficient
-     * @param kT the material’s transparency coefficient
-     * @return the Material
-     */
-    public Material setKT(Double3 kT) {
-        this.kT = kT;
-        return this;
-    }
-    /**
-     * Setter for the material’s transparency coefficient
-     * @param kT the material’s transparency coefficient
-     * @return the Material
-     */
-    public Material setKT(double kT) {
-        this.kT = new Double3(kT);
-        return this;}
-    /**
-     * Setter for the material’s transparency coefficient
-     * @param kR the material’s transparency coefficient
-     * @return the Material
-     */
-    public Material setKR(double kR) {
-        this.kR = new Double3(kR);
-        return this;
-    }
 
-    /**
-     * Setter for the material’s transparency coefficient
-     * @param kR the material’s transparency coefficient
-     * @return the Material
-     */
-    public Material setKR(Double3 kR) {
-        this.kR = kR;
-        return this;}
     /**
      * Setter for the material’s shininess
      * @param nSh the material’s shininess
