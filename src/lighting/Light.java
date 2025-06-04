@@ -4,7 +4,6 @@ import primitives.Color;
 
 /**
  * Class Light is a base class of all types of lights.
- * @author Yair Ziv and Amitay Yosh'i.
  */
 abstract class Light {
     /**

@@ -1,6 +1,6 @@
 package renderer;
 
-import geometries.Intersectable. Intersection;
+import geometries.Intersectable.Intersection;
 import lighting.LightSource;
 import primitives.*;
 import scene.Scene;
@@ -11,13 +11,15 @@ import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
 
 /**
- * SimpleRayTracer class is a basic implementation of the RayTracerBase.
+ * SimpleRayTracer class is an enhanced implementation of RayTracerBase.
+ * It supports reflection, transparency, and global effects using recursion.
  */
 public class SimpleRayTracer extends RayTracerBase {
-    /**
-     * A small constant used represents the amount of ray origin movement for shadow rays
-     */
-    private static final double DELTA = 0.1;
+    // הקבוע DELTA הוסר מכאן - הוא נמצא עכשיו במחלקת Ray
+    private static final int MAX_CALC_COLOR_LEVEL = 10;
+    private static final double MIN_CALC_COLOR_K = 0.001;
+    private static final Double3 INITIAL_K = Double3.ONE;
+
     /**
      * Constructs a new SimpleRayTracer with the given scene.
      * @param scene the scene that will be rendered using this ray tracer
@@ -27,78 +29,72 @@ public class SimpleRayTracer extends RayTracerBase {
     }
 
     /**
-     * Checks if the intersection point is unshaded by any geometry.
-     * @param intersection the intersection point to check
-     * @return true if the intersection point is unshaded, false otherwise
+     * Recursively calculates the total color at the intersection point.
+     * This method includes local lighting effects (diffuse and specular)
+     * as well as global effects (reflection and transparency).
+     *
+     * @param intersection the intersection point with a geometry
+     * @param level recursion depth remaining
+     * @param k attenuation coefficient
+     * @return the computed color at the intersection
      */
-    private boolean unshaded(Intersection intersection) {
-        Vector pointToLight = intersection.l.scale(-1); // from the point to the light source
-        Vector deltaVector = intersection.normal;
-        // if the light is behind the normal, move in the opposite direction
-        if(pointToLight.dotProduct(deltaVector) < 0)
-            deltaVector = deltaVector.scale(-DELTA);
-            // if the light is in front of the normal, move in the same direction
-        else
-            deltaVector = deltaVector.scale(DELTA);
+    private Color calcColor(Intersection intersection, int level, Double3 k) {
+        if (level == 0 || k.lowerThan(MIN_CALC_COLOR_K))
+            return intersection.geometry.getEmission();
 
-        Point point = intersection.point.add(deltaVector); // move the point slightly in the direction of deltaVector
-        Ray ray = new Ray(point, pointToLight); // create a ray from the point to the light source
-        var intersections = scene.geometries.calculateIntersections(ray, intersection.light.getDistance(point));
-        return intersections == null;
+        Color ambient = scene.ambientLight.getIntensity()
+                .scale(intersection.geometry.getMaterial().kA);
+
+        Color localColor = calcColorLocalEffects(intersection);
+        Color globalColor = calcGlobalEffects(intersection, level, k);
+
+        return intersection.geometry.getEmission()
+                .add(ambient)
+                .add(localColor)
+                .add(globalColor);
     }
 
     /**
-     * Initializes the fields of the ray direction vector, the normal vector, and their dot product,
-     * and returns false if the dot product is equal to zero, and true otherwise
-     * @param intersection the intersection to update
-     * @param rayDirection the ray direction vector
-     * @return false if the dot product is equal to zero, and true otherwise
+     * Overload of calcColor to initialize recursion parameters.
+     *
+     * @param intersection the intersection point
+     * @param ray the ray that caused the intersection
+     * @return the computed color at the intersection
      */
-    public boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
-        intersection.v = rayDirection;
-        intersection.normal = intersection.geometry.getNormal(intersection.point);
-        intersection.vNormal = intersection.v.dotProduct(intersection.normal);
+    private Color calcColor(Intersection intersection, Ray ray) {
+        if (!preprocessIntersection(intersection, ray.getDirection()))
+            return Color.BLACK;
 
-        return !isZero(intersection.vNormal);
+        return calcColor(intersection, MAX_CALC_COLOR_LEVEL, INITIAL_K);
     }
 
     /**
-     * Initializes the fields related to the light source at intersection,
-     * and returns false if both dot products are equal to zero, and true otherwise
-     * @param intersection the intersection to update
-     * @param light the source light
-     * @return false if both dot products are equal to zero, and true otherwise
+     * Constructs a reflection ray based on the law of reflection.
+     * Uses the new Ray constructor with point shifting to avoid self-intersection.
+     *
+     * @param intersection the intersection point
+     * @return the reflected ray
      */
-    public boolean setLightSource(Intersection intersection, LightSource light) {
-        // Assumes that preprocessIntersection has already been executed; otherwise there may be
-        // problems running the code. But it is only called internally, so there are no checks.
-        intersection.light = light;
-        intersection.l = light.getL(intersection.point);
-        intersection.lNormal = intersection.l.dotProduct(intersection.normal);
+    private Ray constructReflectedRay(Intersection intersection) {
+        Vector v = intersection.v;
+        Vector n = intersection.normal;
+        double vn = v.dotProduct(n);
+        Vector r = v.subtract(n.scale(2 * vn));
 
-        return alignZero(intersection.lNormal * intersection.vNormal) > 0;
+        // שימוש בבנאי החדש - הזזת הנקודה לאורך הנורמל
+        return new Ray(intersection.point, r, n);
     }
 
     /**
-     * Calculates the local lighting effects at a given intersection point.
-     * This includes the object's emission and contributions from all light sources
-     * that affect the point (diffuse and specular reflections).
-     * @param intersection the intersection point between a ray and a geometry
-     * @return the resulting color from local light effects at the intersection
+     * Constructs a transparency (refracted) ray assuming direction stays unchanged.
+     * Uses the new Ray constructor with point shifting to avoid intersection artifacts.
+     *
+     * @param intersection the intersection point
+     * @return the refracted ray
      */
-    private Color calcColorLocalEffects(Intersection intersection) {
-        Color color = intersection.geometry.getEmission();
-        for (LightSource lightSource : scene.lights) {
-            // also checks if sign(lNormal) == sign(vNormal)) and if the intersection is unshaded
-            if (!setLightSource(intersection, lightSource) || !unshaded(intersection))
-                continue;
-
-            Color iL = lightSource.getIntensity(intersection.point);
-            color = color
-                    .add(iL.scale(calcDiffusive(intersection)
-                            .add(calcSpecular(intersection))));
-        }
-        return color;
+    private Ray constructRefractedRay(Intersection intersection) {
+        // שימוש בבנאי החדש - הזזת הנקודה לאורך כיוון הקרן
+        return new Ray(intersection.point, intersection.v, intersection.v);
     }
 
     /**
@@ -125,32 +121,169 @@ public class SimpleRayTracer extends RayTracerBase {
     }
 
     /**
-     * Calculates the total color at the intersection point, combining ambient light,
-     * emission, and local lighting effects (diffuse + specular).
-     * @param intersection the intersection for calculating the color
-     * @param ray the viewing ray that hit the geometry
-     * @return the resulting color at the intersection point
+     * Calculates the local lighting effects at a given intersection point.
+     * This includes the object's emission and contributions from all light sources
+     * that affect the point (diffuse and specular reflections).
+     * @param intersection the intersection point between a ray and a geometry
+     * @return the resulting color from local light effects at the intersection
      */
-    private Color calcColor(Intersection intersection, Ray ray) {
-        if (!preprocessIntersection(intersection, ray.getDirection()))
+    private Color calcColorLocalEffects(Intersection intersection) {
+        Color color = intersection.geometry.getEmission();
+        for (LightSource lightSource : scene.lights) {
+            // also checks if sign(lNormal) == sign(vNormal)) and if the intersection is unshaded
+            if (!setLightSource(intersection, lightSource) || !unshaded(intersection))
+                continue;
+
+            Color iL = lightSource.getIntensity(intersection.point);
+            color = color
+                    .add(iL.scale(calcDiffusive(intersection)
+                            .add(calcSpecular(intersection))));
+        }
+        return color;
+    }
+
+    /**
+     * Computes global effects (reflection or transparency).
+     * It finds the closest intersection of the secondary ray and calls calcColor recursively.
+     *
+     * @param ray secondary ray (reflection or transparency)
+     * @param level recursion depth remaining
+     * @param k attenuation coefficient
+     * @return computed global effect color
+     */
+    private Color calcGlobalEffect(Ray ray, int level, Double3 k) {
+        Intersection closestIntersection = findClosestIntersection(ray);
+        if (closestIntersection == null)
+            return scene.background;
+
+        // חיוני! נאתחל את פרטי החיתוך כמו כיוון וקטורים
+        if (!preprocessIntersection(closestIntersection, ray.getDirection()))
             return Color.BLACK;
 
-        Color ambientLightIntensity = scene.ambientLight.getIntensity();
-        Double3 attenuationCoefficient = intersection.geometry.getMaterial().kA;
-
-        Color intensity = ambientLightIntensity.scale(attenuationCoefficient);
-        return intensity.add(calcColorLocalEffects(intersection));
+        return calcColor(closestIntersection, level - 1, k);
     }
 
+
+    /**
+     * Calculates the sum of global effects (reflection and transparency).
+     * Calls calcGlobalEffect for each secondary ray.
+     *
+     * @param intersection intersection point with the geometry
+     * @param level recursion depth remaining
+     * @param k attenuation coefficient
+     * @return the combined global effect color
+     */
+    private Color calcGlobalEffects(Intersection intersection, int level, Double3 k) {
+        Color reflectionColor = Color.BLACK;
+        Color refractionColor = Color.BLACK;
+
+        Double3 kR = intersection.geometry.getMaterial().kR;
+        if (!kR.equals(Double3.ZERO)) {
+            Ray reflectedRay = constructReflectedRay(intersection);
+            Double3 newK = k.product(kR);
+            if (!newK.lowerThan(MIN_CALC_COLOR_K))
+                reflectionColor = calcGlobalEffect(reflectedRay, level, newK);
+        }
+
+        Double3 kT = intersection.geometry.getMaterial().kT;
+        if (!kT.equals(Double3.ZERO)) {
+            Ray refractedRay = constructRefractedRay(intersection);
+            Double3 newK = k.product(kT);
+            if (!newK.lowerThan(MIN_CALC_COLOR_K))
+                refractionColor = calcGlobalEffect(refractedRay, level, newK);
+        }
+
+        return reflectionColor.add(refractionColor);
+    }
+
+    /**
+     * Finds the closest intersection of a ray with the scene geometries.
+     *
+     * @param ray the ray to check
+     * @return the closest intersection point, or null if no intersection
+     */
+    private Intersection findClosestIntersection(Ray ray) {
+        List<Intersection> intersections = scene.geometries.calculateIntersections(ray);
+        if (intersections == null)
+            return null;
+
+        Intersection closest = null;
+        double minDistance = Double.MAX_VALUE;
+        for (Intersection inter : intersections) {
+            double distance = inter.point.distance(ray.getPoint(0));
+            if (distance < minDistance) {
+                minDistance = distance;
+                closest = inter;
+            }
+        }
+        return closest;
+    }
+
+    /**
+     * Determines whether the intersection point is unshaded.
+     * Uses the new Ray constructor with point shifting.
+     * Only objects with a transparency coefficient lower than MIN_CALC_COLOR_K cause shadows.
+     *
+     * @param intersection intersection point and lighting data
+     * @return true if unshaded, false if blocked by opaque objects
+     */
+    /**
+     * Determines whether the intersection point is unshaded.
+     * Checks if the closest intersection along the shadow ray blocks the light.
+     *
+     * @param intersection the intersection point and lighting data
+     * @return true if unshaded, false otherwise
+     */
+    private boolean unshaded(Intersection intersection) {
+        Ray shadowRay = new Ray(intersection.point, intersection.l.scale(-1), intersection.normal);
+
+        Intersection closestIntersection = findClosestIntersection(shadowRay);
+
+        // If there's no blocking object, the point is unshaded
+        return closestIntersection == null || !(closestIntersection.geometry.getMaterial().kT.lowerThan(MIN_CALC_COLOR_K));
+    }
+
+    /**
+     * Initializes intersection properties such as direction and normal.
+     *
+     * @param intersection intersection data
+     * @param rayDirection ray direction vector
+     * @return true if dot product is non-zero, false otherwise
+     */
+    public boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
+        intersection.v = rayDirection;
+        intersection.normal = intersection.geometry.getNormal(intersection.point);
+        intersection.vNormal = intersection.v.dotProduct(intersection.normal);
+
+        return !isZero(intersection.vNormal);
+    }
+
+    /**
+     * Sets the light source properties in the intersection data.
+     *
+     * @param intersection intersection point data
+     * @param light light source
+     * @return true if light affects the point, false otherwise
+     */
+    public boolean setLightSource(Intersection intersection, LightSource light) {
+        intersection.light = light;
+        intersection.l = light.getL(intersection.point);
+        intersection.lNormal = intersection.l.dotProduct(intersection.normal);
+
+        return alignZero(intersection.lNormal * intersection.vNormal) > 0;
+    }
+
+    /**
+     * Traces the ray and computes the closest intersection's color.
+     *
+     * @param ray the ray to trace
+     * @return computed color or background if no intersection
+     */
     @Override
     public Color traceRay(Ray ray) {
-        List<Intersection> intersections = scene.geometries.calculateIntersections(ray);
-
-        if (intersections == null)
+        Intersection closestIntersection = findClosestIntersection(ray);
+        if (closestIntersection == null)
             return scene.background;
-        else {
-            Intersection closestPoint = ray.findClosestIntersection(intersections);
-            return calcColor(closestPoint, ray);
-        }
-    }
+        return calcColor(closestIntersection,ray);
+ }
 }
