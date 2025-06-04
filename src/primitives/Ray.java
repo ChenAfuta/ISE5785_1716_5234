@@ -9,6 +9,12 @@ import java.util.List;
  */
 public class Ray {
     /**
+     * Small value for avoiding self-intersection problems when moving a point
+     * along the normal vector.
+     */
+    private static final double DELTA = 0.1;
+
+    /**
      * The starting point of the ray in 3D space.
      * It is immutable and cannot be changed once the ray is constructed.
      */
@@ -30,6 +36,21 @@ public class Ray {
     public Ray(Point p, Vector v) {
         this.p = p;
         this.v = v.normalize();
+    }
+
+    /**
+     * Constructs a Ray object with a point shifted along a normal vector.
+     * This constructor is used to avoid self-intersection problems by moving
+     * the ray's starting point slightly along the normal vector.
+     *
+     * @param originalPoint the original point before shifting
+     * @param rayDirection the direction vector of the ray
+     * @param normal the normal vector along which to shift the point
+     */
+    public Ray(Point originalPoint, Vector rayDirection, Vector normal) {
+        // Shift the point along the normal vector by DELTA
+        this.p = originalPoint.add(normal.scale(DELTA));
+        this.v = rayDirection.normalize();
     }
 
     /**
@@ -82,6 +103,14 @@ public class Ray {
     }
 
     /**
+     * Get function for the starting point of the ray.
+     * @return the starting point of the ray.
+     */
+    public Point getOrigin() {
+        return p;
+    }
+
+    /**
      * Get function for the vector that represents the ray.
      * @return the direction vector of the ray.
      */
@@ -98,5 +127,7 @@ public class Ray {
     }
 
     @Override
-    public String toString() { return "Ray:\n" + p.toString() + " " + v.toString(); }
+    public String toString() {
+        return "Ray:\n" + p.toString() + " " + v.toString();
+    }
 }
