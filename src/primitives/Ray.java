@@ -48,10 +48,12 @@ public class Ray {
      * @param normal the normal vector along which to shift the point
      */
     public Ray(Point originalPoint, Vector rayDirection, Vector normal) {
-        // Shift the point along the normal vector by DELTA
-        this.p = originalPoint.add(normal.scale(DELTA));
+        double nv = normal.dotProduct(rayDirection);
+        Vector delta = normal.scale(nv > 0 ? DELTA : -DELTA);
+        this.p = originalPoint.add(delta);
         this.v = rayDirection.normalize();
     }
+
 
     /**
      * Get function for the point that represents the ray.

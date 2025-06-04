@@ -124,43 +124,61 @@ public class SimpleRayTracer extends RayTracerBase {
      * Calculates the local lighting effects at a given intersection point.
      * This includes the object's emission and contributions from all light sources
      * that affect the point (diffuse and specular reflections).
+     * תומך בהצללה חלקית דרך עצמים שקופים.
+     *
      * @param intersection the intersection point between a ray and a geometry
      * @return the resulting color from local light effects at the intersection
      */
     private Color calcColorLocalEffects(Intersection intersection) {
         Color color = intersection.geometry.getEmission();
+
         for (LightSource lightSource : scene.lights) {
-            // also checks if sign(lNormal) == sign(vNormal)) and if the intersection is unshaded
-            if (!setLightSource(intersection, lightSource) || !unshaded(intersection))
+            if (!setLightSource(intersection, lightSource))
                 continue;
 
-            Color iL = lightSource.getIntensity(intersection.point);
-            color = color
-                    .add(iL.scale(calcDiffusive(intersection)
-                            .add(calcSpecular(intersection))));
+            // יצירת קרן צל
+            Ray shadowRay = new Ray(intersection.point, intersection.l.scale(-1), intersection.normal);
+            double maxDistance = lightSource.getDistance(intersection.point);
+
+            // מחשב שקיפות מצטברת של הגופים בדרך
+            Double3 ktr = transparency(shadowRay, maxDistance);
+            if (ktr.lowerThan(MIN_CALC_COLOR_K))
+                continue;
+
+            // עוצמת אור מהמקור, מונחת לפי שקיפות
+            Color iL = lightSource.getIntensity(intersection.point).scale(ktr);
+
+            // חישוב תרומות דיפוזית וספקולרית
+            color = color.add(iL.scale(
+                    calcDiffusive(intersection).add(
+                            calcSpecular(intersection))));
         }
+
         return color;
     }
+
 
     /**
      * Computes global effects (reflection or transparency).
      * It finds the closest intersection of the secondary ray and calls calcColor recursively.
+     * The resulting color is attenuated by the given coefficient k.
      *
      * @param ray secondary ray (reflection or transparency)
      * @param level recursion depth remaining
-     * @param k attenuation coefficient
-     * @return computed global effect color
+     * @param k attenuation coefficient for this effect (product of previous k and kR/kT)
+     * @return computed global effect color with attenuation
      */
     private Color calcGlobalEffect(Ray ray, int level, Double3 k) {
         Intersection closestIntersection = findClosestIntersection(ray);
         if (closestIntersection == null)
-            return scene.background;
+            return scene.background.scale(k); // חשוב גם את הרקע להנחית לפי k
 
         // חיוני! נאתחל את פרטי החיתוך כמו כיוון וקטורים
         if (!preprocessIntersection(closestIntersection, ray.getDirection()))
             return Color.BLACK;
 
-        return calcColor(closestIntersection, level - 1, k);
+        // קריאה רקורסיבית וסקייל לפי k
+        return calcColor(closestIntersection, level - 1, k).scale(k);
     }
 
 
@@ -218,30 +236,26 @@ public class SimpleRayTracer extends RayTracerBase {
         }
         return closest;
     }
-
     /**
-     * Determines whether the intersection point is unshaded.
-     * Uses the new Ray constructor with point shifting.
-     * Only objects with a transparency coefficient lower than MIN_CALC_COLOR_K cause shadows.
+     * Computes the accumulated transparency (ktr) from a point to a light source,
+     * considering all geometries that intersect the shadow ray.
      *
-     * @param intersection intersection point and lighting data
-     * @return true if unshaded, false if blocked by opaque objects
+     * @param shadowRay the shadow ray
+     * @param maxDistance maximum distance to the light source
+     * @return accumulated transparency coefficient (1 means fully transparent, 0 means blocked)
      */
-    /**
-     * Determines whether the intersection point is unshaded.
-     * Checks if the closest intersection along the shadow ray blocks the light.
-     *
-     * @param intersection the intersection point and lighting data
-     * @return true if unshaded, false otherwise
-     */
-    private boolean unshaded(Intersection intersection) {
-        Ray shadowRay = new Ray(intersection.point, intersection.l.scale(-1), intersection.normal);
+    private Double3 transparency(Ray shadowRay, double maxDistance) {
+        List<Intersection> intersections = scene.geometries.calculateIntersections(shadowRay, maxDistance);
+        if (intersections == null) return Double3.ONE;
 
-        Intersection closestIntersection = findClosestIntersection(shadowRay);
-
-        // If there's no blocking object, the point is unshaded
-        return closestIntersection == null || !(closestIntersection.geometry.getMaterial().kT.lowerThan(MIN_CALC_COLOR_K));
+        Double3 ktr = Double3.ONE;
+        for (Intersection gp : intersections) {
+            ktr = ktr.product(gp.geometry.getMaterial().kT);
+            if (ktr.lowerThan(MIN_CALC_COLOR_K)) return Double3.ZERO;
+        }
+        return ktr;
     }
+
 
     /**
      * Initializes intersection properties such as direction and normal.
