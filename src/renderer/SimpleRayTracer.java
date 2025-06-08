@@ -274,6 +274,7 @@ public class SimpleRayTracer extends RayTracerBase {
 
     /**
      * Sets the light source properties in the intersection data.
+     * Returns true if the light direction and view direction are on the same side of the surface.
      *
      * @param intersection intersection point data
      * @param light light source
@@ -283,9 +284,13 @@ public class SimpleRayTracer extends RayTracerBase {
         intersection.light = light;
         intersection.l = light.getL(intersection.point);
         intersection.lNormal = intersection.l.dotProduct(intersection.normal);
+        intersection.vNormal = intersection.v.dotProduct(intersection.normal);
 
-        return alignZero(intersection.lNormal * intersection.vNormal) > 0;
+        // תנאי רך יותר – שניהם חיוביים או שניהם שליליים (אותו צד של הנורמל)
+        return intersection.lNormal * intersection.vNormal > 0;
     }
+
+
 
     /**
      * Traces the ray and computes the closest intersection's color.
