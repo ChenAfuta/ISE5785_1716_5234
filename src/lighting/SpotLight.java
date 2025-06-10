@@ -42,8 +42,16 @@ public class SpotLight extends PointLight {
 
     @Override
     public Color getIntensity(Point p) {
-        return super.getIntensity(p).scale(Math.pow(Math.max(0, direction.dotProduct(getL(p))), narrowBeam));
+        double dirFactor = direction.dotProduct(getL(p));
+
+        // במקום למחוק את האור לחלוטין – מחזירים עוצמה נמוכה גם אם זווית שלילית
+        double factor = dirFactor > 0
+                ? Math.pow(dirFactor, narrowBeam)
+                : 0.05; // אור מינימלי גם בכיוון הפוך (כדי שיראו משהו)
+
+        return super.getIntensity(p).scale(factor);
     }
+
 
     @Override
     public SpotLight setKc(double kC) {

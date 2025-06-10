@@ -15,7 +15,6 @@ import static primitives.Util.isZero;
  * It supports reflection, transparency, and global effects using recursion.
  */
 public class SimpleRayTracer extends RayTracerBase {
-    // הקבוע DELTA הוסר מכאן - הוא נמצא עכשיו במחלקת Ray
     private static final int MAX_CALC_COLOR_LEVEL = 10;
     private static final double MIN_CALC_COLOR_K = 0.001;
     private static final Double3 INITIAL_K = Double3.ONE;
@@ -81,7 +80,6 @@ public class SimpleRayTracer extends RayTracerBase {
         double vn = v.dotProduct(n);
         Vector r = v.subtract(n.scale(2 * vn));
 
-        // שימוש בבנאי החדש - הזזת הנקודה לאורך הנורמל
         return new Ray(intersection.point, r, n);
     }
 
@@ -93,7 +91,6 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return the refracted ray
      */
     private Ray constructRefractedRay(Intersection intersection) {
-        // שימוש בבנאי החדש - הזזת הנקודה לאורך כיוון הקרן
         return new Ray(intersection.point, intersection.v, intersection.v);
     }
 
@@ -124,7 +121,6 @@ public class SimpleRayTracer extends RayTracerBase {
      * Calculates the local lighting effects at a given intersection point.
      * This includes the object's emission and contributions from all light sources
      * that affect the point (diffuse and specular reflections).
-     * תומך בהצללה חלקית דרך עצמים שקופים.
      *
      * @param intersection the intersection point between a ray and a geometry
      * @return the resulting color from local light effects at the intersection
@@ -136,19 +132,15 @@ public class SimpleRayTracer extends RayTracerBase {
             if (!setLightSource(intersection, lightSource))
                 continue;
 
-            // יצירת קרן צל
             Ray shadowRay = new Ray(intersection.point, intersection.l.scale(-1), intersection.normal);
             double maxDistance = lightSource.getDistance(intersection.point);
 
-            // מחשב שקיפות מצטברת של הגופים בדרך
             Double3 ktr = transparency(shadowRay, maxDistance);
             if (ktr.lowerThan(MIN_CALC_COLOR_K))
                 continue;
 
-            // עוצמת אור מהמקור, מונחת לפי שקיפות
             Color iL = lightSource.getIntensity(intersection.point).scale(ktr);
 
-            // חישוב תרומות דיפוזית וספקולרית
             color = color.add(iL.scale(
                     calcDiffusive(intersection).add(
                             calcSpecular(intersection))));
@@ -156,7 +148,6 @@ public class SimpleRayTracer extends RayTracerBase {
 
         return color;
     }
-
 
     /**
      * Computes global effects (reflection or transparency).
@@ -171,16 +162,13 @@ public class SimpleRayTracer extends RayTracerBase {
     private Color calcGlobalEffect(Ray ray, int level, Double3 k) {
         Intersection closestIntersection = findClosestIntersection(ray);
         if (closestIntersection == null)
-            return scene.background.scale(k); // חשוב גם את הרקע להנחית לפי k
+            return scene.background.scale(k);
 
-        // חיוני! נאתחל את פרטי החיתוך כמו כיוון וקטורים
         if (!preprocessIntersection(closestIntersection, ray.getDirection()))
             return Color.BLACK;
 
-        // קריאה רקורסיבית וסקייל לפי k
         return calcColor(closestIntersection, level - 1, k).scale(k);
     }
-
 
     /**
      * Calculates the sum of global effects (reflection and transparency).
@@ -236,6 +224,7 @@ public class SimpleRayTracer extends RayTracerBase {
         }
         return closest;
     }
+
     /**
      * Computes the accumulated transparency (ktr) from a point to a light source,
      * considering all geometries that intersect the shadow ray.
@@ -255,7 +244,6 @@ public class SimpleRayTracer extends RayTracerBase {
         }
         return ktr;
     }
-
 
     /**
      * Initializes intersection properties such as direction and normal.
@@ -286,11 +274,8 @@ public class SimpleRayTracer extends RayTracerBase {
         intersection.lNormal = intersection.l.dotProduct(intersection.normal);
         intersection.vNormal = intersection.v.dotProduct(intersection.normal);
 
-        // תנאי רך יותר – שניהם חיוביים או שניהם שליליים (אותו צד של הנורמל)
         return intersection.lNormal * intersection.vNormal > 0;
     }
-
-
 
     /**
      * Traces the ray and computes the closest intersection's color.
@@ -303,6 +288,6 @@ public class SimpleRayTracer extends RayTracerBase {
         Intersection closestIntersection = findClosestIntersection(ray);
         if (closestIntersection == null)
             return scene.background;
-        return calcColor(closestIntersection,ray);
- }
+        return calcColor(closestIntersection, ray);
+    }
 }
