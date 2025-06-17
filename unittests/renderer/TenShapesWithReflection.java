@@ -79,8 +79,9 @@ public class TenShapesWithReflection {
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30).setKR(0).setKT(0))
         );
 
-        scene.lights.add(new SpotLight(new Color(WHITE), new Point(195, 195, 50), new Vector(-0, -0, -1))
+        scene.lights.add(new SpotLight(new Color(WHITE), new Point(195, 195, 50), new Vector(0, 0, -1))
                 .setKl(0.00001).setKq(0.000005));
+
 
 
         camera

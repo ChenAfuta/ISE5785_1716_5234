@@ -1,28 +1,21 @@
 package lighting;
 
-import primitives.Color;
-import primitives.Point;
-import primitives.Vector;
+import primitives.*;
+import static primitives.Util.alignZero;
 
 /**
- * SpotLight represents a point light source with a specific direction and beam concentration.
- * The light is focused along a direction, and intensity can be adjusted using a narrow beam factor.
+ * Represents a spot light source in the scene with directional focus.
  */
 public class SpotLight extends PointLight {
-    /**
-     * The direction of the spotlight (normalized)
-     */
     private final Vector direction;
-    /**
-     * Beam concentration factor, the larger, the narrower the beam
-     */
-    private double narrowBeam = 1;
+    private double narrowBeam = 1.0;
 
     /**
-     * Constructs a spotlight with the given intensity, position, and direction.
-     * @param intensity the light intensity
-     * @param position  the position of the spotlight
-     * @param direction the direction in which the light is focused
+     * Constructor for SpotLight.
+     *
+     * @param intensity The intensity of the light.
+     * @param position The position of the light source.
+     * @param direction The direction of the light beam.
      */
     public SpotLight(Color intensity, Point position, Vector direction) {
         super(intensity, position);
@@ -30,41 +23,19 @@ public class SpotLight extends PointLight {
     }
 
     /**
-     * Sets the beam concentration (narrowness).
-     * A higher value results in a narrower, more focused beam.
-     * @param narrowBeam the narrow beam exponent
-     * @return the updated spotlight
+     * Sets the narrow beam factor.
+     *
+     * @param narrowBeam The narrow beam factor.
+     * @return The SpotLight object (for chaining).
      */
     public SpotLight setNarrowBeam(double narrowBeam) {
-        this.narrowBeam = narrowBeam;
+        this.narrowBeam = Math.max(1.0, narrowBeam);
         return this;
     }
 
     @Override
     public Color getIntensity(Point p) {
-        double dirFactor = direction.dotProduct(getL(p));
-
-        // במקום למחוק את האור לחלוטין – מחזירים עוצמה נמוכה גם אם זווית שלילית
-        double factor = dirFactor > 0
-                ? Math.pow(dirFactor, narrowBeam)
-                : 0.05; // אור מינימלי גם בכיוון הפוך (כדי שיראו משהו)
-
-        return super.getIntensity(p).scale(factor);
-    }
-
-
-    @Override
-    public SpotLight setKc(double kC) {
-        return (SpotLight) super.setKc(kC);
-    }
-
-    @Override
-    public SpotLight setKl(double kL) {
-        return (SpotLight) super.setKl(kL);
-    }
-
-    @Override
-    public SpotLight setKq(double kQ) {
-        return (SpotLight) super.setKq(kQ);
+        double cosTheta = alignZero(direction.dotProduct(getL(p)));
+        return cosTheta <= 0 ? Color.BLACK : super.getIntensity(p).scale(Math.pow(cosTheta, narrowBeam));
     }
 }

@@ -8,10 +8,6 @@ import geometries.*;
 import lighting.*;
 import primitives.*;
 import scene.Scene;
-
-/**
- * בדיקת השתקפות פשוטה: כדור מעל מראה
- */
 public class MirrorTest {
     private final Scene scene = new Scene("Mirror scene");
 

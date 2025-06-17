@@ -117,4 +117,37 @@ public abstract class Intersectable {
     public final List<Intersection> calculateIntersections(Ray ray) {
         return calculateIntersections(ray, Double.POSITIVE_INFINITY);
     }
+    /**
+     * Legacy support structure pairing a geometry with a point.
+     */
+    public static class GeoPoint {
+        /** The intersected geometry. */
+        public Geometry geometry;
+        /** The location of the intersection. */
+        public Point point;
+
+        /**
+         * Constructs a GeoPoint for backward compatibility.
+         * @param geometry geometry involved
+         * @param point    intersection point
+         */
+        public GeoPoint(Geometry geometry, Point point) {
+            this.geometry = geometry;
+            this.point = point;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (!(obj instanceof GeoPoint other)) return false;
+            return this.geometry.equals(other.geometry)
+                    && this.point.equals(other.point);
+        }
+
+        @Override
+        public String toString() {
+            return "GeoPoint [geometry=" + geometry + ", point=" + point + "]";
+        }
+    }
 }
