@@ -3,27 +3,30 @@ package lighting;
 import primitives.Color;
 
 /**
- * Class Light is a base class of all types of lights.
+ * Abstract base class representing a light source in a 3D scene.
+ * Holds the common property of light intensity.
  */
-abstract class Light {
+public abstract class Light {
     /**
-     * Variable for the color intensity of light source
+     * The color intensity of the light source.
      */
     protected final Color intensity;
 
     /**
-     * Constructor fot the intensity
-     * @param intensity the intensity value for initialization
+     * Constructs a Light with the specified intensity.
+     *
+     * @param intensity The color intensity of the light.
      */
     protected Light(Color intensity) {
         this.intensity = intensity;
     }
 
     /**
-     * A getter for the intensity
-     * @return the intensity of the light
+     * Returns the intensity of this light source.
+     *
+     * @return The color intensity.
      */
     public Color getIntensity() {
-        return this.intensity;
+        return intensity;
     }
 }

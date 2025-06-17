@@ -75,8 +75,9 @@ public class Plane extends Geometry {
         // denominator for the formula
         final double denominator = normal.dotProduct(rayVector);
         // in case ray is parallel to the plane
-        if (isZero(denominator))
+        if (alignZero(denominator) == 0)
             return null;
+
 
         final double t = numerator / denominator;
 

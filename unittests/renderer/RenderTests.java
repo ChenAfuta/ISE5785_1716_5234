@@ -24,13 +24,14 @@ class RenderTests {
            .setVpDistance(100) //
            .setVpSize(500, 500);
 
+
    /**
     * Produce a scene with basic 3D model and render it into a png image with a
     * grid
     */
    @Test
    void renderTwoColorTest() {
-      Scene scene = new Scene("Two color").setBackground(new Color(75, 127, 90))
+      Scene scene = new Scene("Two color").setBackground(Color.BLACK) // Set background to black
               .setAmbientLight(new AmbientLight(new Color(255, 191, 191)));
       scene.geometries //
               .add(// center
@@ -81,36 +82,6 @@ class RenderTests {
               .writeToImage("color render test");
    }
 
-   /**
-    * Produce a scene with basic 3D model - including individual lights of the
-    * bodies and render it into a png image with a grid
-    */
-   @Test
-   void renderMultiColorTest2() {
-      Scene scene = new Scene("Multi color").setAmbientLight(new AmbientLight(new Color(WHITE)));
-      scene.geometries //
-              .add(// center
-                      new Sphere(new Point(0, 0, -100), 50)
-                              .setMaterial(new Material().setMaterial(new Double3(0.4))),
-                      // up left
-                      new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100)) //
-                              .setMaterial(new Material().setMaterial(new Double3(0,0.8,0))),
-                      // down left
-                      new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100)) //
-                              .setMaterial(new Material().setMaterial(new Double3(0.8,0,0))),
-                      // down right
-                      new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100)) //
-                              .setMaterial(new Material().setMaterial(new Double3(0,0,0.8))));
-
-      camera //
-              .setRayTracer(scene, RayTracerType.SIMPLE) //
-              .setResolution(1000, 1000) //
-              .build() //
-              .renderImage() //
-              .printGrid(100, new Color(WHITE)) //
-              .writeToImage("color render test 2");
-   }
-
    /** Test for XML based scene - for bonus */
    @Test
    void basicRenderXml() {
@@ -130,6 +101,40 @@ class RenderTests {
               .writeToImage("xml render test");
    }
 
+
+   /**
+    * New test method as requested: ambient light + material only, no emission
+    */
+   @Test
+   void renderAmbientLightTest() {
+      Scene scene = new Scene("Ambient Light Test")
+              .setBackground(Color.BLACK)
+              .setAmbientLight(new AmbientLight(Color.WHITE)); // white ambient light
+
+      scene.geometries.add(
+              new Sphere(new Point(0, 0, -100), 50d)
+                      .setMaterial(new Material().setKA(new Double3(0.4))), // ambient reflection for sphere
+
+              new Triangle(new Point(-100, 0, -100), new Point(0, 100, -100), new Point(-100, 100, -100))
+                      .setMaterial(new Material().setKA(new Double3(0, 0.8, 0))), // green triangle
+
+              new Triangle(new Point(-100, 0, -100), new Point(0, -100, -100), new Point(-100, -100, -100))
+                      .setMaterial(new Material().setKA(new Double3(0.8, 0, 0))), // red triangle
+
+              new Triangle(new Point(100, 0, -100), new Point(0, -100, -100), new Point(100, -100, -100))
+                      .setMaterial(new Material().setKA(new Double3(0, 0, 0.8))) // blue triangle
+      );
+
+      camera
+              .setRayTracer(scene, RayTracerType.SIMPLE)
+              .setResolution(1000, 1000)
+              .build()
+              .renderImage()
+              .printGrid(100, new Color(YELLOW))
+              .writeToImage("ambientLight render test");
+   }
+
+
    /** Test for JSON based scene - for bonus */
    @Test
    void basicRenderJson() {
@@ -146,5 +151,6 @@ class RenderTests {
               .build() //
               .renderImage() //
               .printGrid(100, new Color(YELLOW)) //
-              .writeToImage("xml render test");}
+              .writeToImage("xml render test");
+   }
 }

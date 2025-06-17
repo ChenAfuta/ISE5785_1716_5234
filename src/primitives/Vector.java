@@ -1,125 +1,109 @@
 package primitives;
 
+import static primitives.Util.isZero;
+
 /**
- * The {@link Vector} class represents a vector in a 3D space.
- * It provides methods to perform various vector operations such as addition, scaling, dot product, and cross product.
+ * The {@code Vector} class represents a non-zero vector in 3D Cartesian space.
+ * It *extends* Point so that you can use a Vector anywhere a Point is expected.
  */
-public final class Vector extends Point {
-
-    public static final Vector AXIS_Y = new Vector(0,1,0) ;
-    public static final Vector AXIS_X = new Vector(1,0,0) ;
-    public static final Vector AXIS_Z = new Vector(0,0,1) ;
-
-
-    /**
-     * Constructs a {@link Vector} with the specified x, y, and z coordinates.
-     * @param x the x-coordinate
-     * @param y the y-coordinate
-     * @param z the z-coordinate
-     * @throws IllegalArgumentException if the vector is a zero vector
-     */
-    public Vector(double x, double y, double z)
-    {
-        this(new Double3(x, y, z));
-    }
+public class Vector extends Point {
+    // standard unit axes:
+    public static final Vector AXIS_X = new Vector(1, 0, 0);
+    public static final Vector AXIS_Y = new Vector(0, 1, 0);
+    public static final Vector AXIS_Z = new Vector(0, 0, 1);
 
     /**
-     * Constructs a {@link Vector} with the specified coordinates.
-     * @param xyz the coordinates of the vector
-     * @throws IllegalArgumentException if the vector is a zero vector
+     * Constructs a non-zero vector from three coordinates.
+     * @throws IllegalArgumentException if (x,y,z) == (0,0,0)
      */
-    public Vector(Double3 xyz) {
-        super(xyz);
+    public Vector(double x, double y, double z) {
+        super(x, y, z);
         if (this.xyz.equals(Double3.ZERO)) {
-            throw new IllegalArgumentException("Vector cannot be zero vector");
+            System.out.println("❌ Attempted to create zero vector from components: (" + x + ", " + y + ", " + z + ")");
+            Thread.dumpStack();
+            throw new IllegalArgumentException("Zero vector is not allowed");
         }
     }
 
     /**
-     * Adds the specified vector to this vector and returns the resulting vector.
-     * @param other the vector to add
-     * @return the resulting vector
+     * Constructs a non-zero vector from a Double3.
+     * @throws IllegalArgumentException if the triple is zero
      */
+    public Vector(Double3 xyz) {
+        super(xyz);
+        if (xyz.equals(Double3.ZERO)) {
+            System.out.println("❌ Attempted to create zero vector from Double3: " + xyz);
+            Thread.dumpStack();
+            throw new IllegalArgumentException("Zero vector is not allowed");
+        }
+    }
+
+    /** Vector-vector addition */
     public Vector add(Vector other) {
         return new Vector(this.xyz.add(other.xyz));
     }
 
-    /**
-     * Scales this vector by the specified scalar and returns the resulting vector.
-     * @param scalar the scalar to scale by
-     * @return the resulting vector
-     */
+    /** Vector-vector subtraction */
+    public Vector subtract(Vector other) {
+        return new Vector(this.xyz.subtract(other.xyz));
+    }
+
+    /** Scale this vector by a scalar */
     public Vector scale(double scalar) {
+        if (isZero(scalar)) {
+            System.out.println("⚠ Warning: Scaling vector " + this + " by zero");
+            Thread.dumpStack();
+        }
         return new Vector(this.xyz.scale(scalar));
     }
 
-    /**
-     * Calculates the dot product of this vector and the specified vector.
-     * @param other the vector to calculate the dot product with
-     * @return the dot product
-     */
+    /** Dot product */
     public double dotProduct(Vector other) {
-        return this.xyz.d1() * other.xyz.d1() +
-                this.xyz.d2() * other.xyz.d2() +
-                this.xyz.d3() * other.xyz.d3();
+        Double3 a = this.xyz, b = other.xyz;
+        return a.d1()*b.d1() + a.d2()*b.d2() + a.d3()*b.d3();
     }
 
-    /**
-     * Calculates the cross product of this vector and the specified vector.
-     * @param other the vector to calculate the cross product with
-     * @return the resulting vector
-     */
+    /** Cross product */
     public Vector crossProduct(Vector other) {
-        return new Vector(this.xyz.d2() * other.xyz.d3() - this.xyz.d3() * other.xyz.d2(),
-                this.xyz.d3() * other.xyz.d1() - this.xyz.d1() * other.xyz.d3(),
-                this.xyz.d1() * other.xyz.d2() - this.xyz.d2() * other.xyz.d1());
+        double x1 = xyz.d1(), y1 = xyz.d2(), z1 = xyz.d3();
+        double x2 = other.xyz.d1(), y2 = other.xyz.d2(), z2 = other.xyz.d3();
+        return new Vector(
+                y1*z2 - z1*y2,
+                z1*x2 - x1*z2,
+                x1*y2 - y1*x2
+        );
     }
 
-    /**
-     * Calculates the squared length of this vector.
-     * @return the squared length
-     */
+    /** Squared length */
     public double lengthSquared() {
-        return this.xyz.d1() * this.xyz.d1() +
-                this.xyz.d2() * this.xyz.d2() +
-                this.xyz.d3() * this.xyz.d3();
+        Double3 d = this.xyz;
+        return d.d1()*d.d1() + d.d2()*d.d2() + d.d3()*d.d3();
     }
 
-    /**
-     * Calculates the length of this vector.
-     * @return the length
-     */
+    /** Length */
     public double length() {
-        return Math.sqrt(this.lengthSquared());
+        return Math.sqrt(lengthSquared());
     }
 
-    /**
-     * Normalizes this vector and returns the resulting unit vector.
-     * @return the resulting unit vector
-     */
+    /** Normalize to a unit vector */
     public Vector normalize() {
-
-        return new Vector(this.xyz.scale(1.0 / this.length()));
+        double len = length();
+        if (isZero(len)) {
+            System.out.println("❌ Attempted to normalize zero-length vector: " + this);
+            Thread.dumpStack();
+            throw new ArithmeticException("Cannot normalize zero vector");
+        }
+        return scale(1.0 / len);
     }
 
-    /**
-     * Returns a string representation of this vector.
-     * @return a string representation of the vector
-     */
-    @Override
-    public String toString() {
-        return "Vector{" + "coordinates=" + xyz + '}';
-    }
-
-    /**
-     * Compares this vector to the specified object for equality.
-     * @param obj the object to compare with
-     * @return {@code true} if the objects are equal, {@code false} otherwise
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof Vector vector)) return false;
-        return xyz.equals(vector.xyz);
+        return this == obj ||
+                (obj instanceof Vector other && this.xyz.equals(other.xyz));
+    }
+
+    @Override
+    public String toString() {
+        return "Vector" + xyz;
     }
 }
