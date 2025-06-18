@@ -7,8 +7,18 @@ import lighting.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Demonstrates a scene with soft shadows and various geometries.
+ * The scene includes a house, a cube, a triangular prism, spheres, and lighting effects.
+ * The rendered image is saved to a file.
+ */
 public class Miniproject1Test {
 
+    /**
+     * Main method to create and render the scene.
+     * 
+     * @param args Command-line arguments (not used).
+     */
     public static void main(String[] args) {
         Scene scene = new Scene("Mini-project 1: Soft Shadows - Modified");
         scene.setBackground(new Color(10, 10, 30));

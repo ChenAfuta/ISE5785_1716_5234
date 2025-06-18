@@ -9,11 +9,20 @@ import lighting.*;
 import primitives.*;
 import scene.Scene;
 
+/**
+ * This class demonstrates the creation of a 3D scene with ten shapes, including
+ * polygons, triangles, spheres, and planes, with various materials and lighting effects.
+ * The scene is rendered using a camera and saved as an image.
+ */
 public class TenShapesWithReflection {
+    /**
+     * The scene object that contains all geometries, lights, and settings for rendering.
+     */
     private final Scene scene = new Scene("Test scene");
 
     /**
-     * Camera builder for the tests with multiple shapes
+     * Camera builder for the tests with multiple shapes.
+     * Configures the camera's location, direction, view plane distance, and size.
      */
     private final Camera.Builder camera = Camera.getBuilder()
             .setLocation(new Point(0, 0, 1000))
@@ -22,28 +31,34 @@ public class TenShapesWithReflection {
             .setVpSize(200, 200)
             .setRayTracer(scene, RayTracerType.SIMPLE);
 
+    /**
+     * Creates a 3D scene with ten shapes, sets up lighting, and renders the scene.
+     * The rendered image is saved with the name "TenShapesWithReflection".
+     */
     @Test
     public void createSceneWithTenShapes() {
-
+        // Set ambient light and background color
         scene.setAmbientLight(new AmbientLight(new Color(25, 25, 25)));
         scene.background = new Color(135, 206, 235);
 
-
-
+        // Add geometries to the scene
         scene.geometries.add(
-
+                // A red polygon
                 new Polygon(new Point(-50, -40, -100), new Point(50, -40, -100), new Point(50, 0, -100), new Point(-50, 0, -100))
                         .setEmission(new Color(RED))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
 
+                // A black triangle
                 new Triangle(new Point(-60, 0, -100), new Point(60, 0, -100), new Point(0, 50, -100))
                         .setEmission(new Color(BLACK))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
 
+                // A brown polygon representing a door
                 new Polygon(new Point(-10, -40, -99), new Point(10, -40, -99), new Point(10, -15, -99), new Point(-10, -15, -99))
-                        .setEmission(new Color(165, 42, 42)) // צבע חום לדלת
+                        .setEmission(new Color(165, 42, 42))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
 
+                // Two blue polygons
                 new Polygon(new Point(-40, -10, -99), new Point(-30, -10, -99), new Point(-30, 0, -99), new Point(-40, 0, -99))
                         .setEmission(new Color(BLUE))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
@@ -51,6 +66,7 @@ public class TenShapesWithReflection {
                         .setEmission(new Color(BLUE))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
 
+                // A dark gray polygon and triangle forming a roof
                 new Polygon(new Point(20, 20, -100), new Point(30, 20, -100), new Point(30, 40, -100), new Point(20, 40, -100))
                         .setEmission(new Color(DARK_GRAY))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
@@ -58,32 +74,33 @@ public class TenShapesWithReflection {
                         .setEmission(new Color(DARK_GRAY))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
 
+                // A gray plane with reflection
                 new Plane(new Point(0, -40, -150), new Vector(0, 1, 0))
                         .setEmission(new Color(GRAY))
                         .setMaterial(new Material().setKR(1).setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
 
+                // An orange polygon and a green sphere
                 new Polygon(new Point(-70, -40, -100), new Point(-65, -40, -100), new Point(-65, 10, -100), new Point(-70, 10, -100))
                         .setEmission(new Color(ORANGE))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
-
                 new Sphere(new Point(-67.5, 20, -100), 10)
                         .setEmission(new Color(GREEN))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30)),
 
+                // A blue plane and a yellow sphere
                 new Plane(new Point(0, 0, -150), new Vector(0, 0, 1))
                         .setEmission(new Color(BLUE))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30).setKR(0).setKT(0)),
-
                 new Sphere(new Point(50, 100, -100), 20)
                         .setEmission(new Color(YELLOW))
                         .setMaterial(new Material().setKD(new Double3(0.5)).setKS(new Double3(0.5)).setShininess(30).setKR(0).setKT(0))
         );
 
+        // Add a spotlight to the scene
         scene.lights.add(new SpotLight(new Color(WHITE), new Point(195, 195, 50), new Vector(0, 0, -1))
                 .setKl(0.00001).setKq(0.000005));
 
-
-
+        // Configure the camera, render the image, and save it
         camera
                 .setResolution(800, 800)
                 .build()
