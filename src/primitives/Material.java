@@ -135,5 +135,4 @@ public class Material {
                 ", shininess=" + shininess +
                 '}';
     }
-
 }
