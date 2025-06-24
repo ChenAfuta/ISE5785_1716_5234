@@ -13,14 +13,20 @@ import scene.Scene;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StreetSceneBVHNoThreadTest {
+/**
+ * Test class for rendering a house scene using BVH acceleration without multithreading.
+ */
+public class HouseSceneBVHNoThreadTest {
 
-    private final Scene scene = new Scene("Warm Street Scene");
+    private final Scene scene = new Scene("HouseScene");
     private final Camera.Builder cameraBuilder = Camera.getBuilder()
             .setRayTracer(scene, RayTracerType.SIMPLE);
 
+    /**
+     * Renders a house scene with BVH acceleration and no multithreading.
+     */
     @Test
-    public void streetScene() {
+    public void HouseScene() {
         List<Intersectable> geometries = new ArrayList<>();
 
         scene.setBackground(new Color(135, 206, 235));
@@ -149,13 +155,6 @@ public class StreetSceneBVHNoThreadTest {
                 new Point(x - 5, y + 10, z + depth/2 + 0.1))
                 .setEmission(brown).setMaterial(new Material().setKD(0.7).setKS(0.2).setShininess(20)));
 
-        for (int i = 0; i < 6; i++) {
-            double zLeft  = -40 - i * 50;
-            double zRight = zLeft + 25;
-            createStreetLamp(geometries, new Point(-50, 1.2, zLeft));
-            createStreetLamp(geometries, new Point( 55, 1.2, zRight));
-        }
-
         Intersectable bvhRoot = BVHNode.build(geometries);
         scene.setGeometries(new Geometries(bvhRoot));
 
@@ -184,9 +183,16 @@ public class StreetSceneBVHNoThreadTest {
         long tEnd = System.currentTimeMillis();
         System.out.printf("Render completed in %.3f seconds.%n", (tEnd - tStart) / 1000.0);
 
-        camera.writeToImage("street1");
+        camera.writeToImage("HouseBVHNoThread");
     }
 
+    /**
+     * Creates a tree at the specified position with a given scale.
+     *
+     * @param geometries The list of geometries to which the tree will be added.
+     * @param pos        The position of the tree.
+     * @param scale      The scale of the tree.
+     */
     private void createTree(List<Intersectable> geometries, Point pos, double scale) {
         double x = pos.getX(), y = pos.getY(), z = pos.getZ();
         Material trunkMaterial = new Material().setKD(0.7).setKS(0.3).setShininess(20);
@@ -205,46 +211,5 @@ public class StreetSceneBVHNoThreadTest {
                 .setEmission(new Color(25, 85, 30)).setMaterial(foliageMaterial));
         geometries.add(new Sphere(new Point(x + 3 * scale, y + 9.0 * scale, z + 2 * scale), 3.5 * scale)
                 .setEmission(new Color(40, 120, 50)).setMaterial(foliageMaterial));
-    }
-
-    private void createStreetLamp(List<Intersectable> geometries, Point pos) {
-        double x = pos.getX(), y = pos.getY(), z = pos.getZ();
-        geometries.add(new Sphere(new Point(x, y - 0.3, z), 0.8)
-                .setEmission(new Color(40, 40, 45))
-                .setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(40)));
-
-        geometries.add(new Polygon(
-                new Point(x - 0.8, y + 0.01, z + 0.8),
-                new Point(x + 0.8, y + 0.01, z + 0.8),
-                new Point(x + 0.8, y + 0.01, z - 0.8),
-                new Point(x - 0.8, y + 0.01, z - 0.8))
-                .setEmission(new Color(35, 35, 40))
-                .setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(40)));
-
-        for (double h = 0.5; h <= 7.0; h += 0.4) {
-            geometries.add(new Sphere(new Point(x, y + h, z), 0.35)
-                    .setEmission(new Color(30, 30, 35))
-                    .setMaterial(new Material().setKD(0.6).setKS(0.4).setShininess(60)));
-        }
-
-        double dir = x < 0 ? +1.0 : -1.0;
-        for (double off = 0.4; off <= 2.4; off += 0.4) {
-            geometries.add(new Sphere(new Point(x + dir * off, y + 7, z), 0.28)
-                    .setEmission(new Color(30, 30, 35))
-                    .setMaterial(new Material().setKD(0.6).setKS(0.4).setShininess(60)));
-        }
-
-        geometries.add(new Sphere(new Point(x + dir * 2.4, y + 6.8, z), 0.25)
-                .setEmission(new Color(40, 40, 45))
-                .setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(40)));
-        geometries.add(new Sphere(new Point(x + dir * 2.4, y + 6.5, z), 0.25)
-                .setEmission(new Color(40, 40, 45))
-                .setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(40)));
-        geometries.add(new Sphere(new Point(x + dir * 2.4, y + 6.0, z), 1.1)
-                .setEmission(new Color(25, 25, 30))
-                .setMaterial(new Material().setKD(0.8).setKS(0.2).setShininess(30)));
-        geometries.add(new Sphere(new Point(x + dir * 2.4, y + 6.0, z), 1.5)
-                .setEmission(new Color(255, 230, 180))
-                .setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(10)));
     }
 }

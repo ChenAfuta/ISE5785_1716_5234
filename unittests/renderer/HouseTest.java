@@ -15,12 +15,12 @@ import java.util.List;
 
 public class HouseTest {
 
-    private final Scene scene = new Scene("Warm Street Scene");
+    private final Scene scene = new Scene("HouseScene");
     private final Camera.Builder cameraBuilder = Camera.getBuilder()
             .setRayTracer(scene, RayTracerType.SIMPLE);
 
     @Test
-    public void streetScene() {
+    public void HouseScene() {
         List<Intersectable> geometries = new ArrayList<>();
 
         // ===== Background Sky =====
@@ -149,7 +149,7 @@ public class HouseTest {
         long tEnd = System.currentTimeMillis();
         System.out.printf("Render completed in %.3f seconds.%n", (tEnd - tStart) / 1000.0);
 
-        camera.writeToImage("house");
+        camera.writeToImage("House");
     }
 
 
