@@ -1,148 +1,159 @@
 package geometries;
 
 import lighting.LightSource;
-import primitives.*;
+import primitives.Point;
+import primitives.Ray;
+import primitives.Material;
+import primitives.Vector;
 
 import java.util.List;
 
 /**
- * The Intersectable abstract class represents shapes that ray can intersect
+ * Abstract base for all geometric shapes that can be intersected by a ray.
+ * Implements the Non-Virtual Interface (NVI) pattern to provide bounding-box culling
+ * before dispatching to the detailed intersection logic.
  */
 public abstract class Intersectable {
+
+    // Bounding box is computed lazily after subclass initialization
+    private BoundingBox bbox;
+
+    protected Intersectable() {
+        // delay compute until after subclass fields are initialized
+    }
+
     /**
-     * The Intersection class is to associate intersection points with intersecting geometries.
+     * Compute this shape’s axis-aligned bounding box.
+     */
+    protected abstract BoundingBox computeBoundingBox();
+
+    /**
+     * @return the lazily computed bounding box for this shape, or null if none
+     */
+    public final BoundingBox getBoundingBox() {
+        if (bbox == null) {
+            bbox = computeBoundingBox();
+        }
+        return bbox;
+    }
+
+    /**
+     * Public entry point: test the ray against the AABB first (if present), then
+     * call the subclass’s intersection code.
+     *
+     * @param ray the ray to intersect
+     * @return list of detailed Intersection records, or null if none
+     */
+    public final List<Intersection> calculateIntersections(Ray ray) {
+        BoundingBox b = getBoundingBox();
+        // if there's a bounding box and the ray misses it, cull early
+        if (b != null && !b.intersects(ray)) {
+            return null;
+        }
+        return calculateIntersectionsHelper(ray);
+    }
+
+    /**
+     * Subclasses override *only* this method with their actual ray-shape test.
+     *
+     * @param ray the ray to intersect
+     * @return list of Intersection objects or null if no hits
+     */
+    protected abstract List<Intersection> calculateIntersectionsHelper(Ray ray);
+
+    /**
+     * Legacy support: convert the detailed Intersection list into GeoPoint pairs.
+     *
+     * @param ray the ray to intersect
+     * @return list of GeoPoint (geometry+point) or null
+     */
+    public final List<GeoPoint> findGeoIntersections(Ray ray) {
+        var hits = calculateIntersections(ray);
+        return (hits == null) ? null
+                : hits.stream()
+                .map(i -> new GeoPoint(i.geometry, i.point))
+                .toList();
+    }
+
+    /**
+     * Legacy support: return only the raw intersection points.
+     *
+     * @param ray the ray to intersect
+     * @return list of Points or null
+     */
+    public final List<Point> findIntersections(Ray ray) {
+        var hits = calculateIntersections(ray);
+        return (hits == null) ? null
+                : hits.stream()
+                .map(i -> i.point)
+                .toList();
+    }
+
+    /**
+     * @return true if this shape has no volume/boundary
+     */
+    public boolean isEmpty() {
+        BoundingBox b = getBoundingBox();
+        return b == null || b.isEmpty();
+    }
+
+    /**
+     * A full record of one ray–geometry intersection, including
+     * material, normal, dot-product, and an optional LightSource.
      */
     public static class Intersection {
-        /**
-         * A geometry intersected
-         */
         public final Geometry geometry;
-        /**
-         * An intersection point
-         */
         public final Point point;
-        /**
-         * The geometry's material
-         */
         public final Material material;
-        /**
-         * The direction of the intersecting ray
-         */
-        public Vector v;
-        /**
-         * The geometry's normal at the intersection point
-         */
-        public Vector normal;
-        /**
-         * The scalar product of the direction of the intersecting ray and the normal vectors
-         */
-        public double vNormal;
-        /**
-         * The light source
-         */
-        public LightSource light;
-        /**
-         * The direction from the light source to the intersection point
-         */
-        public Vector l;
-        /**
-         * The scalar product of the direction from the light source to the intersection point and the normal vectors
-         */
-        public double lNormal;
+        public final Ray ray;
+        public final Vector normal;
+        public final double dotProduct;
+        public LightSource lightSource;
 
-
-        /**
-         * Constructor for initialization Intersection fields
-         * @param geometry a geometry for initialization
-         * @param point a point for initialization
-         */
-        public Intersection(Geometry geometry, Point point) {
-            this.geometry = geometry;
-            this.point = point;
-
-            this.material = geometry != null ? geometry.getMaterial() : null;
+        public Intersection(Geometry geometry,
+                            Point point,
+                            Material material,
+                            Ray ray,
+                            Vector normal,
+                            LightSource lightSource) {
+            this.geometry    = geometry;
+            this.point       = point;
+            this.material    = material != null ? material : new Material();
+            this.ray         = ray;
+            this.normal      = normal;
+            this.lightSource = lightSource;
+            this.dotProduct  = (normal != null && ray != null)
+                    ? normal.dotProduct(ray.getDirection())
+                    : 0;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
-            return (obj instanceof Intersection other)
-                    && geometry == other.geometry && point.equals(other.point);
+            if (!(obj instanceof Intersection other)) return false;
+            return geometry.equals(other.geometry)
+                    && point.equals(other.point);
         }
 
         @Override
         public String toString() {
-            return "geometry=" + geometry + ", point=" + point;
+            return "Intersection [geometry=" + geometry
+                    + ", point="    + point
+                    + ", material=" + material
+                    + ", dot="      + dotProduct + "]";
         }
     }
 
     /**
-     * Function that called from a geometry shape and calculates the intersections with a given ray.
-     * This method cannot be overridden
-     * @param ray the given ray that we want to calculate the intersections with
-     * @return List of the shape's intersections with ray (Converting the intersection list to a points list)
-     */
-    public final List<Point> findIntersections(Ray ray) {
-        var list = calculateIntersections(ray);
-        return list == null ? null : list.stream().map(intersection -> intersection.point).toList();
-    }
-
-    /**
-     * Calculates the intersection between a ray and a geometry, up to the max distance.
-     * Every geometry class implements it.
-     * Why not do everything in the method calculateIntersections?
-     * To use the NVI (non-virtual-interface) pattern.
-     * The method should be private, according to NVI, but java does not allow private abstract methods.
-     * @param ray the ray that makes the intersection
-     * @param maxDistance the maximum distance of the intersection from the head of the ray
-     * @return a list of the intersection and the geometry that intersected
-     */
-    protected abstract List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance);
-
-    /**
-     * Calculates the intersection between a ray and a geometry, up to the max distance.
-     * @param ray the ray that makes the intersection
-     * @param maxDistance the maximum distance of the intersection from the head of the ray
-     * @return a list of the intersection and the geometry that intersected
-     */
-    public final List<Intersection> calculateIntersections(Ray ray, double maxDistance) {
-        return calculateIntersectionsHelper(ray, maxDistance);
-    }
-
-    /**
-     * Calculates the intersection between a ray and a geometry.
-     * @param ray the ray that makes the intersection
-     * @return a list of the intersection and the geometry that intersected
-     */
-    public final List<Intersection> calculateIntersections(Ray ray) {
-        return calculateIntersections(ray, Double.POSITIVE_INFINITY);
-    }
-    /**
-     * Legacy support structure pairing a geometry with a point.
+     * Simple legacy pairing of a geometry with one hit point.
      */
     public static class GeoPoint {
-        /** The intersected geometry. */
-        public Geometry geometry;
-        /** The location of the intersection. */
-        public Point point;
+        public final Geometry geometry;
+        public final Point point;
 
-        /**
-         * Constructs a GeoPoint for backward compatibility.
-         * @param geometry geometry involved
-         * @param point    intersection point
-         */
         public GeoPoint(Geometry geometry, Point point) {
             this.geometry = geometry;
-            this.point = point;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null) return false;
-            if (!(obj instanceof GeoPoint other)) return false;
-            return this.geometry.equals(other.geometry)
-                    && this.point.equals(other.point);
+            this.point    = point;
         }
 
         @Override

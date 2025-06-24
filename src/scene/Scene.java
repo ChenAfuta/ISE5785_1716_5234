@@ -133,4 +133,15 @@ public class Scene {
                 ", lights=" + lights +
                 '}';
     }
+    /**
+     * Sets the root geometry in the scene from any Intersectable (e.g., BVHNode).
+     * Wraps it as a single element in Geometries.
+     * @param root The root intersectable (e.g., BVH root).
+     * @return The Scene object (for chaining).
+     */
+    public Scene setGeometries(Intersectable root) {
+        this.geometries = new Geometries(root);
+        return this;
+    }
+
 }

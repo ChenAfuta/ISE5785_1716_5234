@@ -101,7 +101,8 @@ public class SimpleRayTracer extends RayTracerBase {
         Point  p0   = ip.point.add(bias);
 
         // soft shadows: area light sampling (uses jitter method)
-        if (light instanceof PointLight pl && pl() > 1) {
+        if (light instanceof PointLight pl && pl.getNumSamples() > 1 && pl.getRadius() > 0)
+        {
             int     samples   = pl.getNumSamples();         // e.g. 81, 300, etc.
             double  lightDist = light.getDistance(ip.point);
             Double3 sumK = Double3.ZERO;
