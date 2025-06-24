@@ -1,56 +1,58 @@
+// src/geometries/Geometries.java
 package geometries;
 
 import primitives.Ray;
 
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  The Geometries class represents a collection of geometry shapes
+ * Composite of multiple Intersectable objects.
+ * Also participates in the NVI pattern, so you get one big AABB,
+ * with children thrown out early on a per-child basis.
  */
-public class Geometries extends Intersectable{
-    /**
-     * List of the geometry shapes
-     */
-    private final List<Intersectable> geometries = new LinkedList<Intersectable>();
+public class Geometries extends Intersectable {
 
-    /**
-     * An empty constructor
-     */
-    public Geometries(){
+    private final List<Intersectable> children = new ArrayList<>();
+
+    /** Build a composite out of zero or more Intersectables */
+    public Geometries(Intersectable... elems) {
+        for (var e : elems) {
+            if (e != null) children.add(e);
+        }
     }
 
-    /**
-     * Constructor that creates Geometries with a given list of geometries
-     * @param geometries the given list of geometries
-     */
-    public Geometries(Intersectable... geometries){
-        add(geometries);
+    /** Add more shapes to this grouping */
+    public void add(Intersectable... elems) {
+        for (var e : elems) {
+            if (e != null) children.add(e);
+        }
     }
 
-    /**
-     * Adds new geometries to the current geometries
-     * @param geometries new given list of geometries for adding
-     */
-    public void add(Intersectable... geometries){
-        Collections.addAll(this.geometries, geometries);
+    /** Expose the raw list if you need it elsewhere (e.g. BVH builder) */
+    public List<Intersectable> getChildren() {
+        return children;
     }
 
     @Override
-    protected List<Intersection>  calculateIntersectionsHelper(Ray ray, double maxDistance) {
-        // List that contains all the intersections
-        List<Intersection> intersections = null;
+    protected BoundingBox computeBoundingBox() {
+        return BoundingBox.unionOf(children);
+    }
 
-        // Loop that goes threw all the geometries and found the intersections
-        for (Intersectable geometry : geometries) {
-            var geometryIntersections = geometry.calculateIntersections(ray, maxDistance);
-            if (geometryIntersections != null)
-                if (intersections == null)
-                    intersections = new LinkedList<>(geometryIntersections);
-                else
-                    intersections.addAll(geometryIntersections);
+    @Override
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        List<Intersection> result = null;
+        for (Intersectable g : children) {
+            var hits = g.calculateIntersections(ray);
+            if (hits != null) {
+                if (result == null) result = new ArrayList<>();
+                result.addAll(hits);
+            }
         }
-        return intersections;
+        return result;
+    }
+
+    public boolean isEmpty() {
+        return children.isEmpty();
     }
 }

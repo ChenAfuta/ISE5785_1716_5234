@@ -3,86 +3,146 @@ package geometries;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
-
-import java.util.List;
-
+import primitives.Material;
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
 
+import java.util.List;
+
+import geometries.Intersectable;
+import geometries.Intersectable.Intersection;
+
 /**
- * The Plane class represents a 2D plane of Euclidean geometry in a Cartesian
- * 3-Dimensional coordinate system.
-
+ * The {@code Plane} class represents an infinite plane in 3D space.
+ * Implements the NVI (Non-Virtual Interface) pattern by providing
+ * its own bounding-box culling and delegating the detailed
+ * ray-intersection test to the helper method.
  */
-
 public class Plane extends Geometry {
-    /**
-     * A point on the geometric plane used to define the plane's position
-     * in 3D Cartesian space.
-     */
-    private final Point head;
 
-    /**
-     * The (normalized) vector represents the direction of the plane.
-     */
+    /** A reference point on the plane. */
+    private final Point q0;
+
+    /** The unit normal vector perpendicular to the plane. */
     private final Vector normal;
 
     /**
-     * Constructs a Plane object using three points in 3D space.
-     * The three points define the direction and position of the plane.
-     * and calculates the normal
-     * @param p1 the first point on the plane.
-     * @param p2 the second point on the plane.
-     * @param p3 the third point on the plane
+     * Construct a plane through three non-collinear points.
+     * The normal is computed as the (v1 × v2) of the two edge vectors.
+     *
+     * @param p1 first point on the plane
+     * @param p2 second point on the plane
+     * @param p3 third point on the plane
      */
     public Plane(Point p1, Point p2, Point p3) {
-        this.head = p1;
+        // build two edge vectors
         Vector v1 = p2.subtract(p1);
         Vector v2 = p3.subtract(p1);
+        // normal is perpendicular to both, then normalize
         this.normal = v1.crossProduct(v2).normalize();
+        this.q0     = p1;
     }
 
     /**
-     * Constructs a Plane object using a given point and a vector.
-     * The point specifies a location on the plane, and the vector defines the plane's normal direction.
-     * The normal vector is normalized during this initialization.
-     * @param p a Point object representing a position on the plane.
-     * @param v a Vector object representing the normal to the plane.
+     * Construct a plane from a point and a normal vector.
+     * The normal is normalized internally.
+     *
+     * @param q0 reference point on the plane
+     * @param normal direction perpendicular to the plane
      */
-    public Plane(Point p, Vector v) {
-        this.head = p;
-        this.normal = v.normalize();
+    public Plane(Point q0, Vector normal) {
+        this.q0     = q0;
+        this.normal = normal.normalize();
     }
 
-    @Override
-    public Vector getNormal(Point p) {
+    /**
+     * Returns the reference point used to define this plane.
+     * Used by unit tests.
+     */
+    public Point getQ0() {
+        return q0;
+    }
+
+    /**
+     * Returns the (constant) unit normal vector of this plane.
+     * Used by unit tests.
+     */
+    public Vector getNormal() {
         return normal;
     }
 
+    /**
+     * Computes an (infinite) axis-aligned bounding box for the plane.
+     * Since a plane is unbounded, it extends to ±∞ on all axes.
+     */
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
-        // Point that represents the ray's head
-        final Point rayPoint = ray.getPoint(0);
-        // Vector that represents the ray's axis
-        final Vector rayVector = ray.getDirection();
+    protected BoundingBox computeBoundingBox() {
+        return new BoundingBox(
+                new Point(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY),
+                new Point(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)
+        );
+    }
 
-        // in case the ray's head is the reference point in the plane, there are no intersections
-        if(rayPoint.equals(head))
+    /**
+     * The plane normal is constant everywhere, so the input point
+     * is ignored.
+     *
+     * @param point arbitrary point (ignored)
+     * @return the unit normal vector of the plane
+     */
+    @Override
+    public Vector getNormal(Point point) {
+        return normal;
+    }
+
+    /**
+     * Detailed ray-plane intersection test. Called by the NVI entry point
+     * only if the ray passes the plane’s bounding box (always true here).
+     *
+     * @param ray the ray to intersect with this plane
+     * @return a singleton list containing one Intersection, or null if none
+     */
+    @Override
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        Point p0 = ray.getPoint();
+        Vector v  = ray.getDirection();
+
+        // denominator = n · v
+        double nv = alignZero(normal.dotProduct(v));
+        if (isZero(nv)) {
+            // ray is parallel to plane
             return null;
+        }
 
-        // numerator for the formula
-        final double numerator = normal.dotProduct(head.subtract(rayPoint));
-        // denominator for the formula
-        final double denominator = normal.dotProduct(rayVector);
-        // in case ray is parallel to the plane
-        if (alignZero(denominator) == 0)
+        // vector from ray origin to plane point
+        Vector q0MinusP0 = q0.subtract(p0);
+
+        // compute ray parameter t
+        double t = alignZero(normal.dotProduct(q0MinusP0) / nv);
+        if (t <= 0) {
+            // intersection is behind the origin or at origin
             return null;
+        }
 
+        // compute the intersection point
+        Point intersectionPoint = ray.getPoint(t);
 
-        final double t = numerator / denominator;
+        // wrap in our Intersection record
+        return List.of(new Intersection(
+                this,                        // the geometry
+                intersectionPoint,           // intersection point
+                getMaterial(),               // the plane’s material
+                ray,                         // the incoming ray
+                normal,                      // the plane normal
+                null                         // no specific light source here
+        ));
+    }
 
-        // if (0 ≥ t) or (maxDistance < t) there are no intersections
-        return (alignZero(t) > 0 && alignZero(t - maxDistance) <= 0) ?
-                List.of(new Intersection(this, ray.getPoint(t))) : null;
+    @Override
+    public String toString() {
+        return "Plane{" +
+                "point="  + q0     +
+                ", normal=" + normal +
+                '}';
     }
 }

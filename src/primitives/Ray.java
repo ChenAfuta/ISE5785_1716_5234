@@ -131,18 +131,22 @@ public class Ray {
 
     /**
      * Finds the closest {@link Point} in the given list to this ray’s origin.
-     * @param points list of {@link Point}s
-     * @return the nearest {@link Point}, or {@code null} if none
+     * @param points list of points
+     * @return the nearest point, or {@code null} if none
      */
     public Point findClosestPoint(List<Point> points) {
         if (points == null || points.isEmpty()) {
             return null;
         }
-        Intersection i = findClosestIntersection(
-                points.stream()
-                        .map(p -> new Intersection(null, p))
-                        .toList()
-        );
-        return i == null ? null : i.point;
+        Point closest      = null;
+        double minDistance = Double.POSITIVE_INFINITY;
+        for (Point p : points) {
+            double dist = p0.distance(p);
+            if (dist < minDistance) {
+                minDistance = dist;
+                closest     = p;
+            }
+        }
+        return closest;
     }
 }

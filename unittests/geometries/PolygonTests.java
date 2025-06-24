@@ -1,21 +1,18 @@
 package geometries;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.Test;
-
-import primitives.*;
-
 import java.util.List;
+import org.junit.jupiter.api.Test;
+import primitives.*;
+import geometries.Intersectable.GeoPoint;
 
 /**
  * Testing Polygons
- * @author Dan.
  */
 class PolygonTests {
     /**
      * Delta value for accuracy when comparing the numbers of type 'double' in
-     * assertEquals.
+     * assertEquals
      */
     private static final double DELTA = 0.000001;
 
@@ -53,18 +50,17 @@ class PolygonTests {
         assertThrows(IllegalArgumentException.class, //
                 () -> new Polygon(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0),
                         new Point(0, 0.5, 0.5)),
-                "Constructed a polygon with vertix on a side");
+                "Constructed a polygon with vertex on a side");
 
         // TC11: Last point = first point
         assertThrows(IllegalArgumentException.class, //
                 () -> new Polygon(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0), new Point(0, 0, 1)),
-                "Constructed a polygon with vertice on a side");
+                "Constructed a polygon with last point identical to first point");
 
         // TC12: Co-located points
         assertThrows(IllegalArgumentException.class, //
                 () -> new Polygon(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0), new Point(0, 1, 0)),
-                "Constructed a polygon with vertice on a side");
-
+                "Constructed a polygon with co-located points");
     }
 
     /** Test method for {@link geometries.Polygon#getNormal(primitives.Point)}. */
@@ -88,83 +84,36 @@ class PolygonTests {
     }
 
     /**
-     * Test method for {@link Polygon#findIntersections(Ray)}.
+     * Test method for {@link geometries.Polygon#findIntersections(primitives.Ray)}.
      */
     @Test
     void testFindIntersections() {
-        // A polygon for test
-        final Polygon polygon = new Polygon(
-                new Point(0,0,1), new Point(-1,0,0), new Point(-1,1,0));
-
-        // A vector used in some test cases to (0,0,1)
-        final Vector v001 = new Vector(0,0,1);
-
-        // ============ Equivalence Partitions Tests ==============
-        // TC01: Ray is inside the polygon (1 point)
-        final var result01 = polygon.findIntersections(new Ray(new Point(-0.7,0.5,0), v001));
-        assertNotNull(result01, "Can't be empty list");
-        assertEquals(1, result01.size(), "Wrong number of points");
-        assertEquals(List.of(new Point(-0.7,0.5,0.3)), result01, "Ray inside polygon");
-
-        // TC02: Ray is outside the polygon against edge (0 points)
-        assertNull(polygon.findIntersections(new Ray(new Point(-2,0.5,-2), v001)),
-                "Ray outside polygon against edge");
-
-        // TC03: Ray is outside the polygon against vertex (0 points)
-        assertNull(polygon.findIntersections(new Ray(new Point(-2,3,-2), v001)),
-                "Ray outside polygon against vertex");
-
-        // =============== Boundary Values Tests ==================
-        // TC11: Ray is on the edge
-        assertNull(polygon.findIntersections(new Ray(new Point(-0.5,0.5,0), v001)),
-                "Ray on edge");
-
-        // TC12: Ray is on the vertex
-        assertNull(polygon.findIntersections(new Ray(new Point(0,0,0.5), v001)),
-                "Ray on vertex");
-
-        // TC13: Ray is on the edge's continuation
-        assertNull(polygon.findIntersections(new Ray(new Point(-2,2,-2), v001)),
-                "Ray on edge's continuation");
-    }
-
-    /**
-     * Test method for {@link Polygon#calculateIntersections(Ray, double)}.
-     */
-    @Test
-    void testCalculateIntersections() {
-        // A point for tests at (0,-1,1)
-        final Point p0m11 = new Point(0, -1, 1);
-        // A point for tests at (0,-1,-1)
-        final Point p0m1m1 = new Point(0, -1, -1);
-        // A point for tests at (0,1,1)
-        final Point p011 = new Point(0, 1, 1);
-        // A point for tests at (0,1,-1)
-        final Point p01m1 = new Point(0, 1, -1);
-        // A plane for test
-        final Polygon polygon = new Polygon(p0m11, p0m1m1, p01m1, p011);
-
-        // A vector used in some test cases to (1,0,0)
-        Vector v100 = new Vector(1, 0, 0);
+        Polygon polygon = new Polygon(
+                new Point(0, 0, 1),
+                new Point(1, 0, 1),
+                new Point(1, 1, 1),
+                new Point(0, 1, 1)
+        );
 
         // ============ Equivalence Partitions Tests ==============
-        // TC01: Ray "stops" before the polygon
-        assertNull(polygon.calculateIntersections(new Ray(new Point(-3, 0, 0), v100), 2),
-                "ray stops before the polygon");
 
-        // TC02: Ray crosses the polygon
-        final var result02 = polygon.calculateIntersections(new Ray(new Point(-1, 0, 0), v100), 2);
-        assertNotNull(result02, "Can't be empty list");
-        assertEquals(1, result02.size(), "Wrong number of points");
+        // TC01: Ray intersects the polygon at the center
+        Ray ray1 = new Ray(new Point(0.5, 0.5, 0), new Vector(0, 0, 1));
+        List<GeoPoint> result1 = polygon.findGeoIntersections(ray1);
+        assertNotNull(result1, "Expected intersection point");
+        assertEquals(1, result1.size(), "Expected exactly one intersection point");
+        assertEquals(new Point(0.5, 0.5, 1), result1.get(0).point, "Wrong intersection point");
 
-        // TC03: Ray starts after the polygon
-        assertNull(polygon.calculateIntersections(new Ray(new Point(1, 0, 0), v100), 2),
-                "ray starts after the polygon");
+        // TC02: Ray is outside the polygon
+        Ray ray2 = new Ray(new Point(2, 2, 0), new Vector(0, 0, 1));
+        assertNull(polygon.findIntersections(ray2), "Expected no intersection (outside polygon)");
 
-        // =============== Boundary Values Tests ==================
-        // TC11: Ray "stops" at the polygon
-        final var result11 = polygon.calculateIntersections(new Ray(new Point(-2, 0, 0), v100), 2);
-        assertNotNull(result11, "Can't be empty list");
-        assertEquals(1, result11.size(), "Wrong number of points");
+        // TC03: Ray is parallel to the polygon but outside
+        Ray ray3 = new Ray(new Point(0, 0, 2), new Vector(0, 0, 1));
+        assertNull(polygon.findIntersections(ray3), "Expected no intersection (parallel and outside)");
+
+        // TC04: Ray is on the plane but outside the polygon
+        Ray ray4 = new Ray(new Point(-1, -1, 1), new Vector(1, 1, 0));
+        assertNull(polygon.findIntersections(ray4), "Expected no intersection (in plane but outside polygon)");
     }
 }

@@ -8,8 +8,7 @@ import primitives.Vector;
 import renderer.sampling.SamplingConfig;
 import renderer.sampling.SuperSamplingBlackboard;
 import scene.Scene;
-import lighting.*;
-import geometries.*;
+
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.stream.IntStream;

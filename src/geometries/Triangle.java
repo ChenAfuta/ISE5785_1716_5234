@@ -3,65 +3,117 @@ package geometries;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
-import static primitives.Util.alignZero;
-import static primitives.Util.isZero;
-
+import geometries.Intersectable.Intersection;
 import java.util.List;
+import static primitives.Util.alignZero;
 
 /**
- * The Triangle class represents a two-dimensional triangle of Euclidean geometry in  Cartesian
- * 3-Dimensional coordinate system.
+ * Triangle class represents a triangle in 3D space, defined as a Polygon with exactly 3 vertices.
  */
 public class Triangle extends Polygon {
+
     /**
-     * Constructs a Triangle object using three points in 3D space.
-     * @param p1 the first point on the triangle.
-     * @param p2 the second point on the triangle.
-     * @param p3 the third point on the triangle.
+     * Constructor for a triangle with 3 vertices.
+     *
+     * @param p1 first point
+     * @param p2 second point
+     * @param p3 third point
      */
     public Triangle(Point p1, Point p2, Point p3) {
         super(p1, p2, p3);
     }
 
+    /**
+     * Compute this triangle's axis-aligned bounding box.
+     * The box simply contains all three vertices.
+     */
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
-        // test the intersections with triangle’s plane
-        // we prefer to use the helper method so that we already check the distance
-        final var intersections = plane.calculateIntersections(ray, maxDistance);
-        if (intersections == null)
+    protected BoundingBox computeBoundingBox() {
+        // For a triangle, we find min and max coordinates across all vertices
+        Point p1 = vertices.get(0);
+        Point p2 = vertices.get(1);
+        Point p3 = vertices.get(2);
+
+        double minX = Math.min(Math.min(p1.getX(), p2.getX()), p3.getX());
+        double minY = Math.min(Math.min(p1.getY(), p2.getY()), p3.getY());
+        double minZ = Math.min(Math.min(p1.getZ(), p2.getZ()), p3.getZ());
+
+        double maxX = Math.max(Math.max(p1.getX(), p2.getX()), p3.getX());
+        double maxY = Math.max(Math.max(p1.getY(), p2.getY()), p3.getY());
+        double maxZ = Math.max(Math.max(p1.getZ(), p2.getZ()), p3.getZ());
+
+        Point min = new Point(minX, minY, minZ);
+        Point max = new Point(maxX, maxY, maxZ);
+
+        return new BoundingBox(min, max);
+    }
+
+    @Override
+    public String toString() {
+        return "Triangle{" + vertices + "}";
+    }
+
+    /**
+     * Override the intersection calculation for triangle.
+     * The intersection is calculated with the plane and then checked if the point lies within the triangle bounds.
+     *
+     * @param ray the ray to check intersections with
+     * @return list of intersections (geometry + point + full intersection data) or null if no valid intersection
+     */
+    @Override
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        // Intersect with the underlying plane
+        List<Intersection> planeIntersections = plane.calculateIntersections(ray);
+        if (planeIntersections == null || planeIntersections.isEmpty()) {
             return null;
-
-        // Point that represents the ray's head
-        final Point rayPoint = ray.getPoint(0);
-        // Vector that represents the ray's axis
-        final Vector rayVector = ray.getDirection();
-
-        // vector1, vector2, vector3 can't be the ZERO Vector because it happens only if rayPoint = P1/P2/P3,
-        // which means the ray begins at the plane and there are no intersections with the plane at all,
-        // so we would have exit this method already because of the first condition
-        final Vector vector1 = vertices.get(0).subtract(rayPoint);
-        final Vector vector2 = vertices.get(1).subtract(rayPoint);
-        final Vector vector3 = vertices.get(2).subtract(rayPoint);
-
-        // normal1, normal2, normal3 can't be the ZERO Vector because it happens only if:
-        // vector1 and vector2 or vector2 and vector3 or vector3 and vector1
-        // are on the same line, which means rayPoint is on one of the triangle's edges,
-        // which means the ray begins at the plane and there are no intersections with the plane at all,
-        // so we would have exit this method already because of the first condition
-        final Vector normal1 = vector1.crossProduct(vector2).normalize();
-        final Vector normal2 = vector2.crossProduct(vector3).normalize();
-        final Vector normal3 = vector3.crossProduct(vector1).normalize();
-
-        final double s1 = alignZero(rayVector.dotProduct(normal1));
-        final double s2 = alignZero(rayVector.dotProduct(normal2));
-        final double s3 = alignZero(rayVector.dotProduct(normal3));
-
-        // the point is inside the triangle only if s1, s2 and s3 have the same sign and none of them is 0
-        if ((s1>0 && s2>0 && s3>0) || (s1<0 && s2<0 && s3<0)) {
-            Intersection intersection = intersections.getFirst();
-            return List.of(new Intersection(this, intersection.point));
         }
 
+        // The intersection point on the plane
+        Intersection planeHit = planeIntersections.get(0);
+        Point p0 = ray.getPoint();
+        Vector dir = ray.getDirection();
+        Point  p  = planeHit.point;
+
+        // Triangle vertices
+        Point v1 = vertices.get(0);
+        Point v2 = vertices.get(1);
+        Point v3 = vertices.get(2);
+
+        // Vectors from ray origin to triangle vertices
+        Vector u = v1.subtract(p0);
+        Vector v = v2.subtract(p0);
+        Vector w = v3.subtract(p0);
+
+        // Normals of sub-triangles
+        Vector n1 = u.crossProduct(v).normalize();
+        Vector n2 = v.crossProduct(w).normalize();
+        Vector n3 = w.crossProduct(u).normalize();
+
+        // Signs of dot products between ray direction and these normals
+        double s1 = alignZero(dir.dotProduct(n1));
+        double s2 = alignZero(dir.dotProduct(n2));
+        double s3 = alignZero(dir.dotProduct(n3));
+
+        boolean allPositive = s1 > 0 && s2 > 0 && s3 > 0;
+        boolean allNegative = s1 < 0 && s2 < 0 && s3 < 0;
+
+        // If point is inside the triangle (all signs same), produce a full Intersection
+        if (allPositive || allNegative) {
+            // Compute the triangle's normal at p
+            Vector normal = getNormal(p);
+            // Build an Intersection with geometry, point, material, ray, normal, no light yet
+            Intersection hit = new Intersection(
+                    this,             // the triangle geometry
+                    p,                // intersection point
+                    getMaterial(),    // the triangle's material
+                    ray,              // the incoming ray
+                    normal,           // the surface normal
+                    null              // lightSource will be set later by the tracer
+            );
+            return List.of(hit);
+        }
+
+        // Outside the triangle bounds
         return null;
     }
 }
