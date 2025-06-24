@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Testing Sphere
- */
+ **/
 class SphereTests {
     /**
      * Test method for {@link Sphere#getNormal(Point)}.

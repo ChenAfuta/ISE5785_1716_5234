@@ -13,7 +13,7 @@ import scene.Scene;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StreetSceneTest {
+public class HouseTest {
 
     private final Scene scene = new Scene("Warm Street Scene");
     private final Camera.Builder cameraBuilder = Camera.getBuilder()
@@ -30,54 +30,91 @@ public class StreetSceneTest {
         geometries.add(new Plane(new Point(0, 0, 0), new Vector(0, 1, 0))
                 .setEmission(new Color(45, 90, 45))
                 .setMaterial(new Material().setKD(0.8).setKS(0.1).setShininess(10)));
+// ==== Street ====
 
-        // Main road
         geometries.add(new Polygon(
                 new Point(-25, 0.1, 200),
                 new Point(25, 0.1, 200),
                 new Point(25, 0.1, -500),
                 new Point(-25, 0.1, -500))
-                .setEmission(new Color(90, 50, 30))
+                .setEmission(new Color(90, 50, 30)) // Road
                 .setMaterial(new Material().setKD(0.9).setKS(0.05).setShininess(15)));
 
-// Left sidewalk (touching road)
         geometries.add(new Polygon(
                 new Point(-45, 0.8, 200),
                 new Point(-25, 0.8, 200),
                 new Point(-25, 0.8, -500),
                 new Point(-45, 0.8, -500))
-                .setEmission(new Color(90, 50, 30))
+                .setEmission(new Color(90, 50, 30)) // Left sidewalk
                 .setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(40)));
 
-// Right sidewalk (touching road)
         geometries.add(new Polygon(
                 new Point(25, 0.8, 200),
                 new Point(45, 0.8, 200),
                 new Point(45, 0.8, -500),
                 new Point(25, 0.8, -500))
-                .setEmission(new Color(90, 50, 30))
+                .setEmission(new Color(90, 50, 30)) // Right sidewalk
                 .setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(40)));
 
-        // ===== Trees =====
-        double[] leftTreeZ = {-80, -120, -160, -200, -240, -280};
-        for (double zPos : leftTreeZ) {
-            createTree(geometries, new Point(-60, 0, zPos), 1.0 + Math.random() * 0.3);
-        }
-        double[] rightTreeZ = {-70, -110, -150, -190, -230, -270, -310};
-        for (double zPos : rightTreeZ) {
-            createTree(geometries, new Point(70, 0, zPos), 0.8 + Math.random() * 0.4);
-        }
+// ==== Trees ====
 
-        // ===== Buildings =====
-        createBuildingNoWindows(geometries, new Point(-150, 0, -300), 40, 80, 50, new Color(60, 90, 140));
-        createBuildingNoWindows(geometries, new Point(-80, 0, -350), 60, 120, 40, new Color(160, 80, 60));
-        createNonReflectiveBuilding(geometries, new Point(100, 0, -280), new Color(140, 120, 160));
-        createBuildingNoWindows(geometries, new Point(120, 0, -320), 25, 15, 20, new Color(130, 60, 50));
-        createBuildingNoWindows(geometries, new Point(150, 0, -315), 20, 18, 18, new Color(170, 140, 100));
-        createBuildingNoWindows(geometries, new Point(-200, 0, -400), 30, 150, 25, new Color(60, 65, 70));
+        double[] leftTreeZ = {-80, -120, -160, -200, -240, -280};
+        for (double zPos : leftTreeZ)
+            createTree(geometries, new Point(-60, 0, zPos), 1.0 + Math.random() * 0.3);
+
+        double[] rightTreeZ = {-70, -110, -150, -190, -230, -270, -310};
+        for (double zPos : rightTreeZ)
+            createTree(geometries, new Point(70, 0, zPos), 0.8 + Math.random() * 0.4);
+
+// ==== House ====
+
+        Color yellow = new Color(255, 220, 120), brown = new Color(90, 50, 30), gray = new Color(100, 100, 100);
+        Material wallMaterial = new Material().setKD(0.9).setKS(0.2).setShininess(20);
+        double x = 0, y = 0, z = -60, width = 50, height = 20, depth = 25;
+
+// Walls
+        geometries.add(new Polygon(new Point(x - width/2, y, z + depth/2), new Point(x + width/2, y, z + depth/2),
+                new Point(x + width/2, y + height, z + depth/2), new Point(x - width/2, y + height, z + depth/2))
+                .setEmission(yellow).setMaterial(wallMaterial));
+        geometries.add(new Polygon(new Point(x - width/2, y, z - depth/2), new Point(x + width/2, y, z - depth/2),
+                new Point(x + width/2, y + height, z - depth/2), new Point(x - width/2, y + height, z - depth/2))
+                .setEmission(yellow).setMaterial(wallMaterial));
+        geometries.add(new Polygon(new Point(x + width/2, y, z + depth/2), new Point(x + width/2, y, z - depth/2),
+                new Point(x + width/2, y + height, z - depth/2), new Point(x + width/2, y + height, z + depth/2))
+                .setEmission(yellow).setMaterial(wallMaterial));
+        geometries.add(new Polygon(new Point(x - width/2, y, z + depth/2), new Point(x - width/2, y, z - depth/2),
+                new Point(x - width/2, y + height, z - depth/2), new Point(x - width/2, y + height, z + depth/2))
+                .setEmission(yellow).setMaterial(wallMaterial));
+
+// Roof
+        geometries.add(new Triangle(new Point(x - width/2, y + height, z + depth/2), new Point(x + width/2, y + height, z + depth/2),
+                new Point(x, y + height + 15, z + depth/2))
+                .setEmission(new Color(150, 30, 30)).setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(50)));
+        geometries.add(new Triangle(new Point(x - width/2, y + height, z - depth/2), new Point(x + width/2, y + height, z - depth/2),
+                new Point(x, y + height + 15, z - depth/2))
+                .setEmission(new Color(150, 30, 30)).setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(50)));
+        geometries.add(new Polygon(new Point(x - width/2, y + height, z - depth/2), new Point(x - width/2, y + height, z + depth/2),
+                new Point(x, y + height + 15, z + depth/2), new Point(x, y + height + 15, z - depth/2))
+                .setEmission(new Color(150, 30, 30)).setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(50)));
+        geometries.add(new Polygon(new Point(x + width/2, y + height, z - depth/2), new Point(x + width/2, y + height, z + depth/2),
+                new Point(x, y + height + 15, z + depth/2), new Point(x, y + height + 15, z - depth/2))
+                .setEmission(new Color(150, 30, 30)).setMaterial(new Material().setKD(0.7).setKS(0.3).setShininess(50)));
+
+// Windows
+        geometries.add(new Polygon(new Point(x - 20, y + 7, z + depth/2 + 0.1), new Point(x - 12, y + 7, z + depth/2 + 0.1),
+                new Point(x - 12, y + 13, z + depth/2 + 0.1), new Point(x - 20, y + 13, z + depth/2 + 0.1))
+                .setEmission(gray).setMaterial(new Material().setKD(0.7).setKS(0.2).setShininess(20)));
+        geometries.add(new Polygon(new Point(x + 12, y + 7, z + depth/2 + 0.1), new Point(x + 20, y + 7, z + depth/2 + 0.1),
+                new Point(x + 20, y + 13, z + depth/2 + 0.1), new Point(x + 12, y + 13, z + depth/2 + 0.1))
+                .setEmission(gray).setMaterial(new Material().setKD(0.7).setKS(0.2).setShininess(20)));
+
+// Door
+        geometries.add(new Polygon(new Point(x - 5, y, z + depth/2 + 0.1), new Point(x + 5, y, z + depth/2 + 0.1),
+                new Point(x + 5, y + 10, z + depth/2 + 0.1), new Point(x - 5, y + 10, z + depth/2 + 0.1))
+                .setEmission(brown).setMaterial(new Material().setKD(0.7).setKS(0.2).setShininess(20)));
+
 
         scene.geometries.add(geometries.toArray(new Intersectable[0]));
-
         // ===== Lighting =====
         scene.setAmbientLight(new AmbientLight(new Color(60, 60, 70).scale(0.8)));
         scene.lights.add(new DirectionalLight(new Color(250, 230, 200), new Vector(-1, -1, -0.5)));
@@ -104,7 +141,7 @@ public class StreetSceneTest {
                 .setDebugPrint(1.0)
                 .build();
         camera.setSamplingConfig(new SamplingConfig(
-                1, TargetShape.RECTANGLE, SamplingPattern.GRID
+                81, TargetShape.RECTANGLE, SamplingPattern.GRID
         ));
 
         long tStart = System.currentTimeMillis();
@@ -112,13 +149,11 @@ public class StreetSceneTest {
         long tEnd = System.currentTimeMillis();
         System.out.printf("Render completed in %.3f seconds.%n", (tEnd - tStart) / 1000.0);
 
-        camera.writeToImage("street1");
+        camera.writeToImage("house");
     }
 
-    // פונקציות createTree, createBuildingNoWindows, createNonReflectiveBuilding נשארות כמו שהיו בגרסה שלך
 
-
-/**
+    /**
      * Creates a tree at the specified position with a given scale.
      * The tree consists of multiple spheres representing the trunk and foliage.
      */
@@ -258,14 +293,5 @@ public class StreetSceneTest {
                 new Point(x - w/2, y + h,  z - d/2))
                 .setEmission(color.scale(0.5))
                 .setMaterial(new Material().setKD(0.7).setKS(0.3).setKR(0.0).setShininess(40)));
-    }
 }
-
-
-
-
-
-
-
-
-
+}
